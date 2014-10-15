@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Caluma</string>
+    <string name="title_section3">Calendario</string>
+    <string name="title_section2">Mensajes</string>
+    <string name="title_section1">Asignaturas</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Ajustes</string>
+
+</resources>
