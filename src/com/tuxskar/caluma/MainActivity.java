@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import retrofit.Callback;
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -41,6 +46,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tuxskar.caluma.ws.WSErrorHandler;
+import com.tuxskar.caluma.ws.WSHandler;
+import com.tuxskar.caluma.ws.models.Degree;
+import com.tuxskar.caluma.ws.models.School;
+import com.tuxskar.caluma.ws.models.WSInfo;
+
 public class MainActivity extends Activity implements ActionBar.TabListener {
 
 	/**
@@ -51,7 +62,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	 * {@link android.support.v13.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
-
+	static RequestInterceptor requestInterceptor;
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
@@ -65,18 +76,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-		// Create the adapter that will return a fragment for each of the three
-		// primary sections of the activity.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
-
-		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-
-		// When swiping between different sections, select the corresponding
-		// tab. We can also use ActionBar.Tab#select() to do this if we have
-		// a reference to the Tab.
 		mViewPager
 				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
 					@Override
@@ -85,16 +87,18 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					}
 				});
 
-		// For each of the sections in the app, add a tab to the action bar.
 		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-			// Create a tab with text corresponding to the page title defined by
-			// the adapter. Also specify this Activity object, which implements
-			// the TabListener interface, as the callback (listener) for when
-			// this tab is selected.
 			actionBar.addTab(actionBar.newTab()
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
+		
+		requestInterceptor = new RequestInterceptor() {
+			  @Override
+			  public void intercept(RequestFacade request) {
+			    request.addHeader("WWW-Authenticate", " Basic realm='api'");
+			  }
+			};
 	}
 
 	@Override
@@ -106,9 +110,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
@@ -119,8 +120,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	@Override
 	public void onTabSelected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
-		// When the given tab is selected, switch to the corresponding page in
-		// the ViewPager.
 		mViewPager.setCurrentItem(tab.getPosition());
 	}
 
@@ -146,18 +145,18 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 		@Override
 		public Fragment getItem(int position) {
-			// getItem is called to instantiate the fragment for the given page.
-			// Return a PlaceholderFragment (defined as a static inner class
-			// below).
-			if (position == 0) {
+			switch (position) {
+			case 0:
 				return CalendarsFragment.newInstance(position);
+			case 1:
+				return SubjectsSearcherFragment.newInstance(position);
+			default:
+				return PlaceholderFragment.newInstance(position + 1);
 			}
-			return PlaceholderFragment.newInstance(position + 1);
 		}
 
 		@Override
 		public int getCount() {
-			// Show 3 total pages.
 			return 4;
 		}
 
@@ -287,7 +286,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					addEventCorrect("Mates", calStart1, calEnd2,
 							"Matem‡ticas aplicadas a la bioinform‡tica",
 							"FREQ=WEEKLY;BYDAY=MO,TU,WE"
-									+ ";UNTIL="+CalendarToString(new GregorianCalendar(2014,11,29, 0,0)),
+									+ ";UNTIL="
+									+ CalendarToString(new GregorianCalendar(
+											2014, 11, 29, 0, 0)),
 							"ETSII aula 3.0.6");
 				}
 
@@ -317,7 +318,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			return cal;
 		}
 
-		public static String CalendarToString(Calendar calendar){
+		public static String CalendarToString(Calendar calendar) {
 			return sdf.format(calendar);
 		}
 
@@ -417,6 +418,97 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					"Deleted Events: " + " " + deleted + " events",
 					Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class SubjectsSearcherFragment extends Fragment {
+		/**
+		 * The fragment argument representing the section number for this
+		 * fragment.
+		 */
+		static WSHandler service;
+		View rootV;
+
+		/**
+		 * Returns a new instance of this fragment for the given section number.
+		 */
+		public static SubjectsSearcherFragment newInstance(int sectionNumber) {
+			SubjectsSearcherFragment fragment = new SubjectsSearcherFragment();
+			RestAdapter restAdapter = new RestAdapter.Builder()
+					.setEndpoint(WSHandler.SERVICE_ENDPOINT)
+					.setErrorHandler(new WSErrorHandler())
+					.setRequestInterceptor(MainActivity.requestInterceptor)
+					.build();
+
+			service = restAdapter.create(WSHandler.class);
+
+			return fragment;
+		}
+
+		public SubjectsSearcherFragment() {
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+
+			rootV = inflater.inflate(R.layout.subjects_searcher, container,
+					false);
+			Button buttonGetSchools = (Button) rootV
+					.findViewById(R.id.get_schools);
+			buttonGetSchools.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View arg0) {
+					getSchools();
+				}
+			});
+			Button bSubjects = (Button) rootV.findViewById(R.id.get_degree);
+			bSubjects.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View arg0) {
+					getDegree();
+				}
+			});
+
+			return rootV;
+		}
+
+		public void getSchools() {
+			service.listSchoolCB(new Callback<List<WSInfo<School>>>(){
+				@Override
+	            public void failure(RetrofitError arg0) {
+					Log.d("failure school", arg0.getResponse().toString());
+	            }
+
+	            @Override
+	            public void success(List<WSInfo<School>> result, Response arg1) {
+					Log.d("success school", arg1.toString() + " " + result.toString());
+	            }
+				
+				
+			});
+			
+			
+			
+			
+			
+//			Callback<List<WSInfo<School>>> schoolsCB = null;
+//			service.listSchoolCB(schoolsCB);
+//			
+////			List<WSInfo<School>> schools = service.listSchool();
+//			int a = 2;
+//			Toast.makeText(this.getActivity(), "Schools " + schoolsCB,
+//					Toast.LENGTH_SHORT).show();
+		}
+
+		public void getDegree() {
+			Degree degree = service.detailDegree(1);
+			Toast.makeText(this.getActivity(), "Degree " + degree.toString(),
+					Toast.LENGTH_SHORT).show();
+		}
+
 	}
 
 	/**
