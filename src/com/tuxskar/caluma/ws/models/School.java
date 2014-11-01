@@ -3,7 +3,16 @@ package com.tuxskar.caluma.ws.models;
 import java.util.List;
 
 public class School{
-	private String name, url, address, university;
+	private String name, address, university;
+	private long id;
+
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	private List<SimpleInfo> degrees;
 	
 	public String getName() {
@@ -11,12 +20,6 @@ public class School{
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getUrl() {
-		return url;
-	}
-	public void setUrl(String url) {
-		this.url = url;
 	}
 	public String getAddress() {
 		return address;

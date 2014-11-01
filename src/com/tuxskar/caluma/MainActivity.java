@@ -51,6 +51,7 @@ import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
 import com.tuxskar.caluma.ws.models.SimpleInfo;
+import com.tuxskar.caluma.ws.models.SubjectSimple;
 import com.tuxskar.caluma.ws.models.WSInfo;
 
 public class MainActivity extends Activity implements ActionBar.TabListener {
@@ -434,6 +435,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		static WSHandler service;
 		View rootV;
 		private WSInfo<School> wsSchool;
+		private Degree selectedDegree;
+		private int argSchoolSelected;
+		private int argDegreeSelected;
 
 		/**
 		 * Returns a new instance of this fragment for the given section number.
@@ -468,14 +472,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					getSchools();
 				}
 			});
-			Button bSubjects = (Button) rootV.findViewById(R.id.get_degree);
-			bSubjects.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View arg0) {
-					getDegree();
-				}
-			});
-
+			getSchools();
 			return rootV;
 		}
 
@@ -520,23 +517,61 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 
 		}
-
-		public void getDegree() {
-			Degree degree = service.detailDegree(1);
-			Toast.makeText(this.getActivity(), "Degree " + degree.toString(),
-					Toast.LENGTH_SHORT).show();
-		}
 		
 		private void setDegrees(int schoolSelected){
+			argSchoolSelected = schoolSelected;
 			Spinner degreeSpinner = (Spinner) rootV
 					.findViewById(R.id.spinner_degree);
 			ArrayAdapter<SimpleInfo> dataAdapter = new ArrayAdapter<SimpleInfo>(
 					this.getActivity(), android.R.layout.simple_spinner_item,
-					wsSchool.getResults().get(schoolSelected).getDegrees());
+					wsSchool.getResults().get(argSchoolSelected).getDegrees());
 			dataAdapter
 					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			degreeSpinner.setAdapter(dataAdapter);
+			degreeSpinner
+			.setOnItemSelectedListener(new OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView<?> arg0,
+						View arg1, int arg2, long arg3) {
+					argDegreeSelected = arg2;
+					getSubjects(wsSchool.getResults().get(argSchoolSelected).getDegrees().get(argDegreeSelected).getId());
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> arg0) {
+				}
+			});
+			
+			
 		}
+
+		public void getSubjects(long degreeId) {
+			service.getDegree(degreeId, new Callback<Degree>() {
+				@Override
+				public void failure(RetrofitError arg0) {
+					Log.d("failure degree", arg0.getResponse().toString());
+				}
+
+				@Override
+				public void success(Degree result, Response arg1) {
+					selectedDegree = result;
+					populateSubjects();
+				}
+			});
+		}
+		
+		private void populateSubjects(){
+			Spinner subjectsSpinner = (Spinner) rootV
+					.findViewById(R.id.spinner_subjects);
+			ArrayAdapter<SubjectSimple> dataAdapter = new ArrayAdapter<SubjectSimple>(
+					this.getActivity(), android.R.layout.simple_spinner_item,
+					selectedDegree.getSubjects());
+			dataAdapter
+					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			subjectsSpinner.setAdapter(dataAdapter);
+		}
+		
+
 
 	}
 

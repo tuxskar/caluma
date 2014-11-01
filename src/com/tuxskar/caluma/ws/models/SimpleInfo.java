@@ -1,14 +1,15 @@
 package com.tuxskar.caluma.ws.models;
 
 public class SimpleInfo {
-	private String url, title;
+	private String title;
+	private long id;
 
-	public String getUrl() {
-		return url;
+	public long getId() {
+		return id;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getTitle() {

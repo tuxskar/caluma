@@ -1,13 +1,26 @@
 package com.tuxskar.caluma.ws.models;
 
-public class SubjectSimple extends SimpleInfo {
-	private String t_subject, description;
+public class SubjectSimple {
+	private String description, title;
 	private int code, level;
+	private long id, t_subject;
 	
-	public String getT_subject() {
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public long getT_subject() {
 		return t_subject;
 	}
-	public void setT_subject(String t_subject) {
+	public void setT_subject(long t_subject) {
 		this.t_subject = t_subject;
 	}
 	public String getDescription() {
@@ -29,5 +42,7 @@ public class SubjectSimple extends SimpleInfo {
 		this.level = level;
 	}
 	
-
+	public String toString(){
+		return this.title;
+	}
 }
