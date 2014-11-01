@@ -50,6 +50,7 @@ import com.tuxskar.caluma.ws.WSErrorHandler;
 import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
+import com.tuxskar.caluma.ws.models.SimpleInfo;
 import com.tuxskar.caluma.ws.models.WSInfo;
 
 public class MainActivity extends Activity implements ActionBar.TabListener {
@@ -92,13 +93,15 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-		
+
 		requestInterceptor = new RequestInterceptor() {
-			  @Override
-			  public void intercept(RequestFacade request) {
-			    request.addHeader("WWW-Authenticate", " Basic realm='api'");
-			  }
-			};
+			@Override
+			public void intercept(RequestFacade request) {
+				request.addHeader("Authorization", " Token "
+						+ WSHandler.android_key);
+				request.addHeader("WWW-Authenticate", " Token");
+			}
+		};
 	}
 
 	@Override
@@ -278,13 +281,13 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					// Calendar calEnd1 = calStart1;
 					// calEnd1.add(Calendar.MINUTE, min_duration);
 					// addEventCorrect("Mates", calStart1, calEnd2,
-					// "Matem‡ticas aplicadas a la bioinform‡tica",
+					// "Matemï¿½ticas aplicadas a la bioinformï¿½tica",
 					// "FREQ=WEEKLY;COUNT:50;BYDAY=MO,TU,WE"+";UNTIL="+calEnd2,
 					// "ETSII aula 3.0.6");
 					String until = calEnd2.getTime().toString();
 					Log.v("DIME UNTIL", until);
 					addEventCorrect("Mates", calStart1, calEnd2,
-							"Matem‡ticas aplicadas a la bioinform‡tica",
+							"Matemï¿½ticas aplicadas a la bioinformï¿½tica",
 							"FREQ=WEEKLY;BYDAY=MO,TU,WE"
 									+ ";UNTIL="
 									+ CalendarToString(new GregorianCalendar(
@@ -381,7 +384,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			// values.put(Events.RRULE,
 			// "FREQ=DAILY;COUNT=20;BYDAY=MO,TU,WE,TH,FR;WKST=MO");
 			// values.put(Events.TITLE, "Some title");
-			// values.put(Events.EVENT_LOCATION, "MŸnster");
+			// values.put(Events.EVENT_LOCATION, "Mï¿½nster");
 			// values.put(Events.CALENDAR_ID, calId);
 			// values.put(Events.EVENT_TIMEZONE, "Europe/Berlin");
 			// values.put(Events.DESCRIPTION,
@@ -430,6 +433,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		 */
 		static WSHandler service;
 		View rootV;
+		private WSInfo<School> wsSchool;
 
 		/**
 		 * Returns a new instance of this fragment for the given section number.
@@ -476,37 +480,62 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		}
 
 		public void getSchools() {
-			service.listSchoolCB(new Callback<List<WSInfo<School>>>(){
+			service.listSchoolCB(new Callback<WSInfo<School>>() {
 				@Override
-	            public void failure(RetrofitError arg0) {
+				public void failure(RetrofitError arg0) {
 					Log.d("failure school", arg0.getResponse().toString());
-	            }
+				}
 
-	            @Override
-	            public void success(List<WSInfo<School>> result, Response arg1) {
-					Log.d("success school", arg1.toString() + " " + result.toString());
-	            }
-				
-				
+				@Override
+				public void success(WSInfo<School> result, Response arg1) {
+					Log.d("success school", result.toString());
+					wsSchool = result;
+					setSchools();
+				}
 			});
+		}
+
+		private void setSchools() {
+			Spinner schoolSpinner = (Spinner) rootV
+					.findViewById(R.id.spinner_schools);
+			ArrayAdapter<School> dataAdapter = new ArrayAdapter<School>(
+					this.getActivity(), android.R.layout.simple_spinner_item,
+					wsSchool.getResults());
+			dataAdapter
+					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			schoolSpinner.setAdapter(dataAdapter);
 			
-			
-			
-			
-			
-//			Callback<List<WSInfo<School>>> schoolsCB = null;
-//			service.listSchoolCB(schoolsCB);
-//			
-////			List<WSInfo<School>> schools = service.listSchool();
-//			int a = 2;
-//			Toast.makeText(this.getActivity(), "Schools " + schoolsCB,
-//					Toast.LENGTH_SHORT).show();
+			schoolSpinner
+					.setOnItemSelectedListener(new OnItemSelectedListener() {
+						@Override
+						public void onItemSelected(AdapterView<?> arg0,
+								View arg1, int arg2, long arg3) {
+							setDegrees(arg2);
+						}
+
+						@Override
+						public void onNothingSelected(AdapterView<?> arg0) {
+						}
+					});
+
+
 		}
 
 		public void getDegree() {
 			Degree degree = service.detailDegree(1);
 			Toast.makeText(this.getActivity(), "Degree " + degree.toString(),
 					Toast.LENGTH_SHORT).show();
+		}
+		
+		private void setDegrees(int schoolSelected){
+			Spinner degreeSpinner = (Spinner) rootV
+					.findViewById(R.id.spinner_degree);
+			ArrayAdapter<SimpleInfo> dataAdapter = new ArrayAdapter<SimpleInfo>(
+					this.getActivity(), android.R.layout.simple_spinner_item,
+					wsSchool.getResults().get(schoolSelected).getDegrees());
+			dataAdapter
+					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			degreeSpinner.setAdapter(dataAdapter);
 		}
 
 	}

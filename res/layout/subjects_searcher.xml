@@ -28,7 +28,17 @@
             android:layout_height="wrap_content"
             android:onClick="getSchools"
             android:text="Facultades" />
-        
+
+        <Spinner
+            android:id="@+id/spinner_schools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinner_degree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <Button
             android:id="@+id/get_degree"
             android:layout_width="wrap_content"
@@ -36,6 +46,10 @@
             android:onClick="getDegree"
             android:text="Asignaturas" />
 
+        <Spinner
+            android:id="@+id/spinner1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </RelativeLayout>

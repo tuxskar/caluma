@@ -37,6 +37,9 @@ public class School{
 		this.degrees = degrees;
 	}
 	 
+	public String toString() {
+	    return this.name;
+	}
 	
 	
 }
