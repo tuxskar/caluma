@@ -10,7 +10,7 @@ import com.tuxskar.caluma.ws.models.WSInfo;
 
 public interface WSHandler {
 	String SERVICE_ENDPOINT = "http://192.168.1.39:8000";
-	static String android_key = "8749f6bfcea6e76632b36e47e78b8e92391bcc90";
+	static String android_key = "43bc34dc5b194f1d3bbf91e7342488b479fb681f";
 
 	@GET("/schools")
 	void listSchoolCB(Callback<WSInfo<School>> cb);

@@ -42,6 +42,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -561,14 +562,10 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		}
 		
 		private void populateSubjects(){
-			Spinner subjectsSpinner = (Spinner) rootV
-					.findViewById(R.id.spinner_subjects);
-			ArrayAdapter<SubjectSimple> dataAdapter = new ArrayAdapter<SubjectSimple>(
-					this.getActivity(), android.R.layout.simple_spinner_item,
+			ArrayAdapter<SubjectSimple> adapter = new SubjectArrayAdapter(this.getActivity(),
 					selectedDegree.getSubjects());
-			dataAdapter
-					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			subjectsSpinner.setAdapter(dataAdapter);
+			ListView subjects_list = (ListView) rootV.findViewById(R.id.subjects_list);
+			subjects_list.setAdapter(adapter);
 		}
 		
 
