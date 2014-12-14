@@ -1,8 +1,11 @@
 package com.tuxskar.caluma;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +49,11 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
                 boolean isChecked) {
             	SubjectSimple element = (SubjectSimple) viewHolder.checkbox
                   .getTag();
+            	Log.d("ischecked", String.valueOf(isChecked));
+            	Log.d("element", element.toString());
+            	// add calendar event
+            	addCalendarEvent(element);
+            	
               element.setSelected(buttonView.isChecked());
 
             }
@@ -61,4 +69,24 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
     holder.checkbox.setChecked(list.get(position).isSelected());
     return view;
   }
+  
+  public void addCalendarEvent(SubjectSimple element){
+	  Calendar calStart1 = new GregorianCalendar(2014, 11, 25, 10,
+				0);
+		calStart1.setTimeZone(MainActivity.CalendarsFragment.timezone);
+		Calendar calEnd2 = new GregorianCalendar(2014, 11, 25, 12, 45);
+		// Calendar calnew = new GregorianCalendar("20141126T1000");
+		calEnd2.setTimeZone(MainActivity.CalendarsFragment.timezone);
+		String eventString = MainActivity.CalendarsFragment.CalendarToString(new GregorianCalendar(
+				2014, 11, 25, 0, 0));
+		Log.d("Calendar Date in STRING:", eventString);
+		MainActivity.addEventCorrect("Mates", calStart1, calEnd2,
+    			"Matemticas aplicadas a la bioinformtica",
+    			"FREQ=WEEKLY;BYDAY=MO,TU,WE"
+    					+ ";UNTIL="
+    					+ eventString,
+    			"ETSII aula 3.0.6", context);
+  }
+  
+  
 } 

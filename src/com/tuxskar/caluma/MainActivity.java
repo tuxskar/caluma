@@ -22,6 +22,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -136,6 +137,94 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	@Override
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
+	}
+	
+	public static void addEventCorrect(String title, Calendar start, Calendar end,
+			String description, String rrule, String location, Context context) {
+		long calID = 8;
+		long startMillis = 0; 
+		long endMillis = 0;     
+		Calendar beginTime = Calendar.getInstance();
+		beginTime.set(2014, 11, 14, 7, 30);
+		startMillis = beginTime.getTimeInMillis();
+		Calendar endTime = Calendar.getInstance();
+		endTime.set(2014, 11, 14, 8, 45);
+		endMillis = endTime.getTimeInMillis();
+		ContentResolver cr = context.getContentResolver();
+		ContentValues values = new ContentValues();
+		values.put(Events.DTSTART, startMillis);
+		values.put(Events.DTEND, endMillis);
+		values.put(Events.TITLE, "Jazzercise");
+		values.put(Events.DESCRIPTION, "Group workout");
+		values.put(Events.CALENDAR_ID, calID);
+		values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
+		Uri uri = cr.insert(Events.CONTENT_URI, values);
+		
+		
+		long eventID = Long.parseLong(uri.getLastPathSegment());
+		
+		Toast.makeText(context,
+				"Created Calendar Event " + eventID + "CalId: " +Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId),
+				Toast.LENGTH_SHORT).show();
+		
+		
+		
+		
+		
+		// String TAG = "adding Event";
+		// Log.d(TAG, "AddUsingContentProvider.addEvent()");
+
+//		ContentResolver contentResolver = context.getContentResolver();
+//
+//		ContentValues calEvent = new ContentValues();
+//		calEvent.put(CalendarContract.Events.CALENDAR_ID,
+//				Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
+//		calEvent.put(CalendarContract.Events.TITLE, title);
+//		calEvent.put(CalendarContract.Events.DTSTART,
+//				start.getTimeInMillis());
+//		// calEvent.put(CalendarContract.Events.RDATE,
+//		// start.getTimeInMillis());
+//		calEvent.put(CalendarContract.Events.DTEND, end.getTimeInMillis());
+//		// calEvent.put(CalendarContract.Events.DURATION, "P20W");
+//		calEvent.put(CalendarContract.Events.EVENT_TIMEZONE,
+//				"Europe/Madrid");
+//		calEvent.put(CalendarContract.Events.RRULE, rrule);
+//		calEvent.put(CalendarContract.Events.DESCRIPTION, description);
+//		calEvent.put(CalendarContract.Events.EVENT_LOCATION, location);
+
+		// ContentValues values = new ContentValues();
+		// values.put(Events.DTSTART, start);
+		// values.put(Events.DTEND, start);
+		// values.put(Events.RRULE,
+		// "FREQ=DAILY;COUNT=20;BYDAY=MO,TU,WE,TH,FR;WKST=MO");
+		// values.put(Events.TITLE, "Some title");
+		// values.put(Events.EVENT_LOCATION, "Mnster");
+		// values.put(Events.CALENDAR_ID, calId);
+		// values.put(Events.EVENT_TIMEZONE, "Europe/Berlin");
+		// values.put(Events.DESCRIPTION,
+		// "The agenda or some description of the event");
+		// // reasonable defaults exist:
+		// values.put(Events.ACCESS_LEVEL, Events.ACCESS_PRIVATE);
+		// values.put(Events.SELF_ATTENDEE_STATUS,
+		// Events.STATUS_CONFIRMED);
+		// values.put(Events.ALL_DAY, 1);
+		// values.put(Events.ORGANIZER, "some.mail@some.address.com");
+		// values.put(Events.GUESTS_CAN_INVITE_OTHERS, 1);
+		// values.put(Events.GUESTS_CAN_MODIFY, 1);
+		// values.put(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
+		// Uri uri =
+		// getContentResolver().
+		// insert(Events.CONTENT_URI, values);
+		// long eventId = new Long(uri.getLastPathSegment());
+
+//		Uri uri = contentResolver.insert(
+//				CalendarContract.Events.CONTENT_URI, calEvent);
+//		// The returned Uri contains the content-retriever URI for
+//		// the newly-inserted event, including its id
+//		Long createdEventId = Long.valueOf(uri.getLastPathSegment());
+//		Toast.makeText(context,
+//				"Created Calendar Event " + createdEventId + "CalId: " +Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId),
+//				Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -252,6 +341,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					tv_account.setText(calendarAccounts.get(arg2));
 					tv_type.setText(calendarTypes.get(arg2));
 					SelectedCalendarId = calendarIds.get(arg2);
+					Log.d("CalendarID selected:", Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
 				}
 
 				@Override
@@ -289,7 +379,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					String until = calEnd2.getTime().toString();
 					Log.v("DIME UNTIL", until);
 					addEventCorrect("Mates", calStart1, calEnd2,
-							"Matem�ticas aplicadas a la bioinform�tica",
+							"Matemticas aplicadas a la bioinformtica",
 							"FREQ=WEEKLY;BYDAY=MO,TU,WE"
 									+ ";UNTIL="
 									+ CalendarToString(new GregorianCalendar(
@@ -324,7 +414,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		}
 
 		public static String CalendarToString(Calendar calendar) {
-			return sdf.format(calendar);
+			return sdf.format(calendar.getTime());
 		}
 
 		public void populateCalendars() {
@@ -386,7 +476,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			// values.put(Events.RRULE,
 			// "FREQ=DAILY;COUNT=20;BYDAY=MO,TU,WE,TH,FR;WKST=MO");
 			// values.put(Events.TITLE, "Some title");
-			// values.put(Events.EVENT_LOCATION, "M�nster");
+			// values.put(Events.EVENT_LOCATION, "Master");
 			// values.put(Events.CALENDAR_ID, calId);
 			// values.put(Events.EVENT_TIMEZONE, "Europe/Berlin");
 			// values.put(Events.DESCRIPTION,
@@ -465,14 +555,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 			rootV = inflater.inflate(R.layout.subjects_searcher, container,
 					false);
-			Button buttonGetSchools = (Button) rootV
-					.findViewById(R.id.get_schools);
-			buttonGetSchools.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View arg0) {
-					getSchools();
-				}
-			});
 			getSchools();
 			return rootV;
 		}
