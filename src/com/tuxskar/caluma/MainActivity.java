@@ -15,6 +15,7 @@ import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.converter.GsonConverter;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -49,6 +50,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.tuxskar.caluma.ws.WSErrorHandler;
 import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.Degree;
@@ -165,15 +168,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		values.put(Events.CALENDAR_ID, calID);
 		values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 		Uri uri = cr.insert(Events.CONTENT_URI, values);
-		
-		
 		long eventID = Long.parseLong(uri.getLastPathSegment());
-		
 		Toast.makeText(context,
 				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
-		
-		
-		
 	}
 
 	/**
@@ -500,10 +497,15 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		 */
 		public static SubjectsSearcherFragment newInstance(int sectionNumber) {
 			SubjectsSearcherFragment fragment = new SubjectsSearcherFragment();
+			Gson gson = new GsonBuilder()
+			.setDateFormat("yyyy-MM-dd")
+			.create();
+
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(WSHandler.SERVICE_ENDPOINT)
 					.setErrorHandler(new WSErrorHandler())
 					.setRequestInterceptor(MainActivity.requestInterceptor)
+					.setConverter(new GsonConverter(gson))
 					.build();
 
 			service = restAdapter.create(WSHandler.class);

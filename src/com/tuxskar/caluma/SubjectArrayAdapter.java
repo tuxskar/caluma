@@ -5,8 +5,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,8 +19,11 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tuxskar.caluma.ws.models.SubjectSimple;
+import com.tuxskar.caluma.ws.models.TeachingSubject;
+import com.tuxskar.caluma.ws.models.Timetable;
 
 public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 
@@ -73,28 +79,81 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 		return view;
 	}
 
-	public void addCalendarEvent(SubjectSimple element) {
-		// TODO: crear la clase t_subject
-		// TODO futuro: sacar todos los t_subject y dejar al usuario elegir cual
-		// quiere
+	public void addCalendarEvent(final SubjectSimple element) {
+		// TODO: ask for the user to select the teachingSubjects that fits
+		// better choosing level and course
 		// Get el primer t_subject para este element solo si tiene algœn
 		// t_suject
 		// setear el dstart y dtend para todos los eventos
 		// por cada timetable a–adir un evento peri—dico
 		// por cada exam a–adir un evento peri—dico
+		if (element.getT_subject().length > 0) {
+			MainActivity.SubjectsSearcherFragment.service.getTSubject(
+					element.getT_subject()[0], new Callback<TeachingSubject>() {
+						@Override
+						public void failure(RetrofitError arg0) {
+							Log.d("failure getting TeachingSubject", arg0.getResponse()
+									.toString());
+						}
 
-		Calendar calStart1 = new GregorianCalendar(2014, 11, 15, 10, 0);
-		Calendar calEnd2 = new GregorianCalendar(2014, 11, 15, 12, 45);
-		String rrule[] = { "MO", "TU", "WE", "TH", "FR", "SA", "SU" };
-		Calendar today = new GregorianCalendar();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		String Until = sdf.format(today.getTime());
-		String RRULE = "FREQ=WEEKLY;BYDAY=" + rrule[0] + ";UNTIL=" + Until;
+						@SuppressLint("SimpleDateFormat") @SuppressWarnings("deprecation")
+						@Override
+						public void success(TeachingSubject result,
+								Response arg1) {
+							String rrule[] = { "SU", "MO", "TU", "WE", "TH", "FR",
+									"SA" };
+							SimpleDateFormat sdf = new SimpleDateFormat(
+									"yyyyMMdd");
+							String Until = sdf.format(result.getEnd_date().getTime());
+							for (Timetable tm : result.getTimetables()){
+								String startTime[] = tm.getStart_time().split(":");
+								String endTime[] = tm.getEnd_time().split(":");
+								int tmDow = Integer.parseInt(tm.getWeek_day());
+								tmDow = tmDow == 7 ? 1 : tmDow + 1; //Android normalization SU:1, MO:2, ...
+								Date startSimpleDate = result.getStart_date();
+								startSimpleDate.setHours(Integer.parseInt(startTime[0]));
+								startSimpleDate.setMinutes(Integer.parseInt(startTime[1]));
+								Calendar startDate = new GregorianCalendar();
+								startDate.setTime(startSimpleDate);
+								Date endSimpleDate = result.getStart_date();
+								endSimpleDate.setHours(Integer.parseInt(endTime[0]));
+								endSimpleDate.setMinutes(Integer.parseInt(endTime[1]));
+								Calendar endDate = new GregorianCalendar();
+								endDate.setTime(endSimpleDate);
+								
+								int dow = startDate.get(Calendar.DAY_OF_WEEK);
+								int offset = 0;
+								if (dow > tmDow){
+									offset = 7 - Math.abs(dow-tmDow);
+								}else if (dow < tmDow){
+									offset = tmDow - dow;
+								}
+								startDate.add(Calendar.DAY_OF_MONTH, offset);
+								endDate.add(Calendar.DAY_OF_MONTH, offset);
+								
+								String RRULE = "FREQ=WEEKLY;BYDAY=" + rrule[tmDow - 1]
+										+ ";UNTIL=" + Until;
 
-		MainActivity.addEventCorrect(element.getTitle(), calStart1, calEnd2,
-				"descripttionnn " + element.getDescription() == null ? ""
-						: element.getDescription(), RRULE, "ETSII aula 3.0.6",
-				context);
+								MainActivity.addEventCorrect(
+										element.getTitle(),
+										startDate,
+										endDate,
+										"descripttionnn "
+												+ tm.getDescription() == null ? ""
+												: tm.getDescription(), RRULE,
+										tm.getAddress(), context);
+							}
+							Toast.makeText(context, "A–adido calendario para " + element.getTitle() + 
+									" con " + result.getTimetables().length + " eventos desde " +
+									result.getStart_date().toString() + 
+									" hasta " + result.getEnd_date().toString() , Toast.LENGTH_LONG).show();
+							
+
+						}
+					});
+		} else {
+			Toast.makeText(context, "Esta asignatura no se est‡ impartiendo actualmente", Toast.LENGTH_LONG).show();
+		}
 	}
 
 }

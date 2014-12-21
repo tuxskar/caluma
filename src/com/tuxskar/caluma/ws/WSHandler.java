@@ -6,6 +6,7 @@ import retrofit.http.Path;
 
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
+import com.tuxskar.caluma.ws.models.TeachingSubject;
 import com.tuxskar.caluma.ws.models.WSInfo;
 
 public interface WSHandler {
@@ -17,5 +18,8 @@ public interface WSHandler {
 
 	@GET("/degree/{degree}/")
 	void getDegree(@Path("degree") long degree, Callback<Degree> cb);
+	
+	@GET("/teachingsubject/{t_subject}/")
+	void getTSubject(@Path("t_subject") long t_subject, Callback<TeachingSubject> cb);
 
 }

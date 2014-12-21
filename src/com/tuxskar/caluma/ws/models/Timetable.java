@@ -1,12 +1,17 @@
 package com.tuxskar.caluma.ws.models;
 
-import java.sql.Time;
-
 public class Timetable {
-	private String description, period;
-	private int week_day;
+	private String description, period, address, week_day;
 	private long id, t_subject;
-	private Time start_time, end_time;
+	private String start_time, end_time;
+
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
 	public String getDescription() {
 		return description;
 	}
@@ -19,10 +24,10 @@ public class Timetable {
 	public void setPeriod(String period) {
 		this.period = period;
 	}
-	public int getWeek_day() {
+	public String getWeek_day() {
 		return week_day;
 	}
-	public void setWeek_day(int week_day) {
+	public void setWeek_day(String week_day) {
 		this.week_day = week_day;
 	}
 	public long getId() {
@@ -37,16 +42,16 @@ public class Timetable {
 	public void setT_subject(long t_subject) {
 		this.t_subject = t_subject;
 	}
-	public Time getStart_time() {
+	public String getStart_time() {
 		return start_time;
 	}
-	public void setStart_time(Time start_time) {
+	public void setStart_time(String start_time) {
 		this.start_time = start_time;
 	}
-	public Time getEnd_time() {
+	public String getEnd_time() {
 		return end_time;
 	}
-	public void setEnd_time(Time end_time) {
+	public void setEnd_time(String end_time) {
 		this.end_time = end_time;
 	}
 }
