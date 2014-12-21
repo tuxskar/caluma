@@ -23,6 +23,7 @@ import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -141,21 +142,26 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	
 	public static void addEventCorrect(String title, Calendar start, Calendar end,
 			String description, String rrule, String location, Context context) {
-		long calID = 8;
+//		long calID = 8;
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
+		long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
+		
 		long startMillis = 0; 
 		long endMillis = 0;     
-		Calendar beginTime = Calendar.getInstance();
-		beginTime.set(2014, 11, 14, 7, 30);
-		startMillis = beginTime.getTimeInMillis();
-		Calendar endTime = Calendar.getInstance();
-		endTime.set(2014, 11, 14, 8, 45);
-		endMillis = endTime.getTimeInMillis();
+//		Calendar beginTime = Calendar.getInstance();
+//		beginTime.set(2014, 11, 14, 7, 30);
+		startMillis = start.getTimeInMillis();
+//		Calendar endTime = Calendar.getInstance();
+//		endTime.set(2014, 11, 14, 8, 45);
+		endMillis = end.getTimeInMillis();
 		ContentResolver cr = context.getContentResolver();
 		ContentValues values = new ContentValues();
 		values.put(Events.DTSTART, startMillis);
 		values.put(Events.DTEND, endMillis);
-		values.put(Events.TITLE, "Jazzercise");
-		values.put(Events.DESCRIPTION, "Group workout");
+		values.put(Events.RRULE, rrule);
+		values.put(Events.TITLE, title);
+		values.put(Events.DESCRIPTION, description);
+		values.put(Events.EVENT_LOCATION, location);
 		values.put(Events.CALENDAR_ID, calID);
 		values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 		Uri uri = cr.insert(Events.CONTENT_URI, values);
@@ -164,67 +170,10 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		long eventID = Long.parseLong(uri.getLastPathSegment());
 		
 		Toast.makeText(context,
-				"Created Calendar Event " + eventID + "CalId: " +Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId),
-				Toast.LENGTH_SHORT).show();
+				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
 		
 		
 		
-		
-		
-		// String TAG = "adding Event";
-		// Log.d(TAG, "AddUsingContentProvider.addEvent()");
-
-//		ContentResolver contentResolver = context.getContentResolver();
-//
-//		ContentValues calEvent = new ContentValues();
-//		calEvent.put(CalendarContract.Events.CALENDAR_ID,
-//				Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
-//		calEvent.put(CalendarContract.Events.TITLE, title);
-//		calEvent.put(CalendarContract.Events.DTSTART,
-//				start.getTimeInMillis());
-//		// calEvent.put(CalendarContract.Events.RDATE,
-//		// start.getTimeInMillis());
-//		calEvent.put(CalendarContract.Events.DTEND, end.getTimeInMillis());
-//		// calEvent.put(CalendarContract.Events.DURATION, "P20W");
-//		calEvent.put(CalendarContract.Events.EVENT_TIMEZONE,
-//				"Europe/Madrid");
-//		calEvent.put(CalendarContract.Events.RRULE, rrule);
-//		calEvent.put(CalendarContract.Events.DESCRIPTION, description);
-//		calEvent.put(CalendarContract.Events.EVENT_LOCATION, location);
-
-		// ContentValues values = new ContentValues();
-		// values.put(Events.DTSTART, start);
-		// values.put(Events.DTEND, start);
-		// values.put(Events.RRULE,
-		// "FREQ=DAILY;COUNT=20;BYDAY=MO,TU,WE,TH,FR;WKST=MO");
-		// values.put(Events.TITLE, "Some title");
-		// values.put(Events.EVENT_LOCATION, "Mnster");
-		// values.put(Events.CALENDAR_ID, calId);
-		// values.put(Events.EVENT_TIMEZONE, "Europe/Berlin");
-		// values.put(Events.DESCRIPTION,
-		// "The agenda or some description of the event");
-		// // reasonable defaults exist:
-		// values.put(Events.ACCESS_LEVEL, Events.ACCESS_PRIVATE);
-		// values.put(Events.SELF_ATTENDEE_STATUS,
-		// Events.STATUS_CONFIRMED);
-		// values.put(Events.ALL_DAY, 1);
-		// values.put(Events.ORGANIZER, "some.mail@some.address.com");
-		// values.put(Events.GUESTS_CAN_INVITE_OTHERS, 1);
-		// values.put(Events.GUESTS_CAN_MODIFY, 1);
-		// values.put(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
-		// Uri uri =
-		// getContentResolver().
-		// insert(Events.CONTENT_URI, values);
-		// long eventId = new Long(uri.getLastPathSegment());
-
-//		Uri uri = contentResolver.insert(
-//				CalendarContract.Events.CONTENT_URI, calEvent);
-//		// The returned Uri contains the content-retriever URI for
-//		// the newly-inserted event, including its id
-//		Long createdEventId = Long.valueOf(uri.getLastPathSegment());
-//		Toast.makeText(context,
-//				"Created Calendar Event " + createdEventId + "CalId: " +Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId),
-//				Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -291,7 +240,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		public static SimpleDateFormat sdf = new SimpleDateFormat(
 				READ_FORMAT_DATETIME, Locale.ENGLISH);
 		public static TimeZone timezone = TimeZone.getTimeZone("Europe/Madrid");
-
+		public Context context;
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
@@ -306,7 +255,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-
+			context = container.getContext();
 			rootV = inflater.inflate(R.layout.fragment_calendars_settings,
 					container, false);
 			populateCalendars();
@@ -341,6 +290,10 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					tv_account.setText(calendarAccounts.get(arg2));
 					tv_type.setText(calendarTypes.get(arg2));
 					SelectedCalendarId = calendarIds.get(arg2);
+					SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);;
+					SharedPreferences.Editor editor = sharedPref.edit();
+					editor.putLong(getString(R.string.selectedCalendarId), SelectedCalendarId);
+					editor.commit();
 					Log.d("CalendarID selected:", Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
 				}
 
@@ -357,6 +310,43 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 				@Override
 				public void onClick(View arg0) {
+//					long calID = 8;
+					SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
+					long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
+					
+					long startMillis = 0; 
+					long endMillis = 0;     
+					Calendar beginTime = Calendar.getInstance();
+					beginTime.set(2014, 11, 14, 7, 30);
+					startMillis = beginTime.getTimeInMillis();
+//					Calendar endTime = Calendar.getInstance();
+//					endTime.set(2014, 11, 14, 8, 45);
+//					endMillis = end.getTimeInMillis();
+					ContentResolver cr = context.getContentResolver();
+					ContentValues values = new ContentValues();
+					values.put(Events.DTSTART, startMillis);
+//					values.put(Events.DTEND, endMillis);
+					values.put(Events.TITLE, "Elegido directamente");
+					values.put(Events.DURATION, "PT30M");
+					values.put(Events.DESCRIPTION, "Una descripci—n para el elegido directamente a mano");
+					values.put(Events.EVENT_LOCATION, "En tu casa o en la mia :P");
+					values.put(Events.CALENDAR_ID, calID);
+					values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
+					Uri uri = cr.insert(Events.CONTENT_URI, values);
+					
+					
+					long eventID = Long.parseLong(uri.getLastPathSegment());
+					
+					Toast.makeText(context,
+							"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
+					
+					
+					
+					
+					
+					
+					
+					
 					// seeCalendars();
 					// Calendar calstart = Calendar.getInstance(), calend =
 					// Calendar
@@ -470,30 +460,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			calEvent.put(CalendarContract.Events.DESCRIPTION, description);
 			calEvent.put(CalendarContract.Events.EVENT_LOCATION, location);
 
-			// ContentValues values = new ContentValues();
-			// values.put(Events.DTSTART, start);
-			// values.put(Events.DTEND, start);
-			// values.put(Events.RRULE,
-			// "FREQ=DAILY;COUNT=20;BYDAY=MO,TU,WE,TH,FR;WKST=MO");
-			// values.put(Events.TITLE, "Some title");
-			// values.put(Events.EVENT_LOCATION, "Master");
-			// values.put(Events.CALENDAR_ID, calId);
-			// values.put(Events.EVENT_TIMEZONE, "Europe/Berlin");
-			// values.put(Events.DESCRIPTION,
-			// "The agenda or some description of the event");
-			// // reasonable defaults exist:
-			// values.put(Events.ACCESS_LEVEL, Events.ACCESS_PRIVATE);
-			// values.put(Events.SELF_ATTENDEE_STATUS,
-			// Events.STATUS_CONFIRMED);
-			// values.put(Events.ALL_DAY, 1);
-			// values.put(Events.ORGANIZER, "some.mail@some.address.com");
-			// values.put(Events.GUESTS_CAN_INVITE_OTHERS, 1);
-			// values.put(Events.GUESTS_CAN_MODIFY, 1);
-			// values.put(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
-			// Uri uri =
-			// getContentResolver().
-			// insert(Events.CONTENT_URI, values);
-			// long eventId = new Long(uri.getLastPathSegment());
 
 			Uri uri = contentResolver.insert(
 					CalendarContract.Events.CONTENT_URI, calEvent);
@@ -529,6 +495,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		private Degree selectedDegree;
 		private int argSchoolSelected;
 		private int argDegreeSelected;
+		Context context;
 
 		/**
 		 * Returns a new instance of this fragment for the given section number.
@@ -552,7 +519,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-
+			context = container.getContext();
 			rootV = inflater.inflate(R.layout.subjects_searcher, container,
 					false);
 			getSchools();

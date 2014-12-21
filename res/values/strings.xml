@@ -7,5 +7,7 @@
     <string name="title_section1">Asignaturas</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Ajustes</string>
+    <string name="selectedCalendarId">1</string>
+    <string name="calendarPreferences">calpref</string>
 
 </resources>
