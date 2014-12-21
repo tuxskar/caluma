@@ -414,14 +414,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					.query(Calendars.CONTENT_URI, projection,
 					// Calendars.VISIBLE + " = 1",
 							null, null, Calendars._ID + " DESC");
-			if (calendarNames == null) {
+//			if (calendarNames == null) {
 				calendarNames = new ArrayList<String>();
 				calendarAccounts = new ArrayList<String>();
 				calendarTypes = new ArrayList<String>();
-			}
-			if (calendarIds == null) {
+//			}
+//			if (calendarIds == null) {
 				calendarIds = new ArrayList<Long>();
-			}
+//			}
 			if (calCursor.moveToFirst()) {
 				do {
 					String name = calCursor.getString(1);
@@ -439,8 +439,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 		public void addEventCorrect(String title, Calendar start, Calendar end,
 				String description, String rrule, String location) {
-			// String TAG = "adding Event";
-			// Log.d(TAG, "AddUsingContentProvider.addEvent()");
 			ContentResolver contentResolver = this.getActivity()
 					.getContentResolver();
 
@@ -530,7 +528,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			service.listSchoolCB(new Callback<WSInfo<School>>() {
 				@Override
 				public void failure(RetrofitError arg0) {
-					Log.d("failure school", arg0.getResponse().toString());
+					if (arg0.getCause() != null){
+					Toast.makeText(context, "Fail getSchool" + arg0.getCause().toString(), Toast.LENGTH_LONG).show();
+					Log.e("failure school", arg0.getCause().toString());
+					}else{
+						Toast.makeText(context, "Fail getSchool no Cause" + arg0.toString(), Toast.LENGTH_LONG).show();
+						Log.e("failure school", arg0.toString());
+							
+					}
 				}
 
 				@Override
