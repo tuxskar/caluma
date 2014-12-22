@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tuxskar.caluma.ws.models.Exam;
 import com.tuxskar.caluma.ws.models.SubjectSimple;
 import com.tuxskar.caluma.ws.models.TeachingSubject;
 import com.tuxskar.caluma.ws.models.Timetable;
@@ -80,80 +81,121 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 	}
 
 	public void addCalendarEvent(final SubjectSimple element) {
-		// TODO: ask for the user to select the teachingSubjects that fits
+		// TODO future: ask for the user to select the teachingSubjects that
+		// fits
 		// better choosing level and course
-		// Get el primer t_subject para este element solo si tiene algœn
-		// t_suject
-		// setear el dstart y dtend para todos los eventos
-		// por cada timetable a–adir un evento peri—dico
-		// por cada exam a–adir un evento peri—dico
 		if (element.getT_subject().length > 0) {
 			MainActivity.SubjectsSearcherFragment.service.getTSubject(
 					element.getT_subject()[0], new Callback<TeachingSubject>() {
 						@Override
 						public void failure(RetrofitError arg0) {
-							Log.d("failure getting TeachingSubject", arg0.getResponse()
-									.toString());
+							Log.d("failure getting TeachingSubject", arg0
+									.getResponse().toString());
 						}
 
-						@SuppressLint("SimpleDateFormat") @SuppressWarnings("deprecation")
+						@SuppressLint("SimpleDateFormat")
+						@SuppressWarnings("deprecation")
 						@Override
 						public void success(TeachingSubject result,
 								Response arg1) {
-							String rrule[] = { "SU", "MO", "TU", "WE", "TH", "FR",
-									"SA" };
+							String rrule[] = { "SU", "MO", "TU", "WE", "TH",
+									"FR", "SA" };
 							SimpleDateFormat sdf = new SimpleDateFormat(
 									"yyyyMMdd");
-							String Until = sdf.format(result.getEnd_date().getTime());
-							for (Timetable tm : result.getTimetables()){
-								String startTime[] = tm.getStart_time().split(":");
+							String Until = sdf.format(result.getEnd_date()
+									.getTime());
+							String message = "";
+							for (Timetable tm : result.getTimetables()) {
+								String startTime[] = tm.getStart_time().split(
+										":");
 								String endTime[] = tm.getEnd_time().split(":");
 								int tmDow = Integer.parseInt(tm.getWeek_day());
-								tmDow = tmDow == 7 ? 1 : tmDow + 1; //Android normalization SU:1, MO:2, ...
+								tmDow = tmDow == 7 ? 1 : tmDow + 1; // Android
+																	// normalization
+																	// SU:1,
+																	// MO:2, ...
 								Date startSimpleDate = result.getStart_date();
-								startSimpleDate.setHours(Integer.parseInt(startTime[0]));
-								startSimpleDate.setMinutes(Integer.parseInt(startTime[1]));
+								startSimpleDate.setHours(Integer
+										.parseInt(startTime[0]));
+								startSimpleDate.setMinutes(Integer
+										.parseInt(startTime[1]));
 								Calendar startDate = new GregorianCalendar();
 								startDate.setTime(startSimpleDate);
 								Date endSimpleDate = result.getStart_date();
-								endSimpleDate.setHours(Integer.parseInt(endTime[0]));
-								endSimpleDate.setMinutes(Integer.parseInt(endTime[1]));
+								endSimpleDate.setHours(Integer
+										.parseInt(endTime[0]));
+								endSimpleDate.setMinutes(Integer
+										.parseInt(endTime[1]));
 								Calendar endDate = new GregorianCalendar();
 								endDate.setTime(endSimpleDate);
-								
+
 								int dow = startDate.get(Calendar.DAY_OF_WEEK);
 								int offset = 0;
-								if (dow > tmDow){
-									offset = 7 - Math.abs(dow-tmDow);
-								}else if (dow < tmDow){
+								if (dow > tmDow) {
+									offset = 7 - Math.abs(dow - tmDow);
+								} else if (dow < tmDow) {
 									offset = tmDow - dow;
 								}
 								startDate.add(Calendar.DAY_OF_MONTH, offset);
 								endDate.add(Calendar.DAY_OF_MONTH, offset);
-								
-								String RRULE = "FREQ=WEEKLY;BYDAY=" + rrule[tmDow - 1]
-										+ ";UNTIL=" + Until;
+
+								String RRULE = "FREQ=WEEKLY;BYDAY="
+										+ rrule[tmDow - 1] + ";UNTIL=" + Until;
 
 								MainActivity.addEventCorrect(
 										element.getTitle(),
 										startDate,
 										endDate,
-										"descripttionnn "
-												+ tm.getDescription() == null ? ""
-												: tm.getDescription(), RRULE,
-										tm.getAddress(), context);
-							}
-							Toast.makeText(context, "A–adido calendario para " + element.getTitle() + 
-									" con " + result.getTimetables().length + " eventos desde " +
-									result.getStart_date().toString() + 
-									" hasta " + result.getEnd_date().toString() , Toast.LENGTH_LONG).show();
-							
+										tm.getDescription() == null ? "" : tm
+												.getDescription(), RRULE, tm
+												.getAddress(), context);
 
+							}
+							for (Exam ex : result.getExams()) {
+								String date[] = ex.getDate().split("-");
+								String startTime[] = ex.getStart_time().split(
+										":");
+								String endTime[] = ex.getEnd_time().split(":");
+
+								Calendar startDate = new GregorianCalendar(
+										Integer.parseInt(date[0]), 
+										Integer.parseInt(date[1]) - 1, 
+										Integer.parseInt(date[2]), 
+										Integer.parseInt(startTime[0]),
+										Integer.parseInt(startTime[1]), 
+										Integer.parseInt(startTime[2]));
+								Calendar endDate = new GregorianCalendar(
+										Integer.parseInt(date[0]), 
+										Integer.parseInt(date[1]) - 1, 
+										Integer.parseInt(date[2]), 
+										Integer.parseInt(endTime[0]),
+										Integer.parseInt(endTime[1]), 
+										Integer.parseInt(endTime[2]));
+								
+								MainActivity.addEventCorrect(
+										ex.getTitle(),
+										startDate,
+										endDate,
+										ex.getDescription() == null ? "" : ex
+												.getDescription(), "", ex
+												.getAddress(), context);
+							}
+							message += "A–adido calendario para "
+									+ element.getTitle() + " con "
+									+ result.getTimetables().length
+									+ " eventos " + result.getExams().length
+									+ " examenes " + " desde "
+									+ result.getStart_date().toString()
+									+ " hasta "
+									+ result.getEnd_date().toString();
+							Toast.makeText(context, message, Toast.LENGTH_LONG)
+									.show();
 						}
 					});
 		} else {
-			Toast.makeText(context, "Esta asignatura no se est‡ impartiendo actualmente", Toast.LENGTH_LONG).show();
+			Toast.makeText(context,
+					"Esta asignatura no se est‡ impartiendo actualmente",
+					Toast.LENGTH_LONG).show();
 		}
 	}
-
 }

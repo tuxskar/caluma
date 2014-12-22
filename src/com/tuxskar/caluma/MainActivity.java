@@ -169,8 +169,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 		Uri uri = cr.insert(Events.CONTENT_URI, values);
 		long eventID = Long.parseLong(uri.getLastPathSegment());
-		Toast.makeText(context,
-				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
+//		Toast.makeText(context,
+//				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
 	}
 
 	/**
