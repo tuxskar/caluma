@@ -9,5 +9,6 @@
     <string name="action_settings">Ajustes</string>
     <string name="selectedCalendarId">1</string>
     <string name="calendarPreferences">calpref</string>
+    <string name="TSUBJECTIDS">TSubjectIDs</string>
 
 </resources>

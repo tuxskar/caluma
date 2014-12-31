@@ -51,6 +51,17 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 			final ViewHolder viewHolder = new ViewHolder();
 			viewHolder.text = (TextView) view.findViewById(R.id.label);
 			viewHolder.checkbox = (CheckBox) view.findViewById(R.id.check);
+			SubjectSimple element = list.get(position);
+			if (element.getT_subject().length == 0){
+				viewHolder.checkbox.setActivated(false);
+			}else {
+				long tSubjectId = element.getT_subject()[0];
+				boolean idFound = false;
+				if (MainActivity.sharedDB.savedTSubject(tSubjectId)){
+					idFound = true;
+				}
+				viewHolder.checkbox.setChecked(idFound);
+			}
 			viewHolder.checkbox
 					.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -59,8 +70,6 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 								boolean isChecked) {
 							SubjectSimple element = (SubjectSimple) viewHolder.checkbox
 									.getTag();
-							Log.d("ischecked", String.valueOf(isChecked));
-							Log.d("element", element.toString());
 							// add calendar event
 							addCalendarEvent(element);
 
@@ -148,7 +157,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 										endDate,
 										tm.getDescription() == null ? "" : tm
 												.getDescription(), RRULE, tm
-												.getAddress(), context);
+												.getAddress(), context, result.getId());
 
 							}
 							for (Exam ex : result.getExams()) {
@@ -178,7 +187,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 										endDate,
 										ex.getDescription() == null ? "" : ex
 												.getDescription(), "", ex
-												.getAddress(), context);
+												.getAddress(), context, result.getId());
 							}
 							message += "A–adido calendario para "
 									+ element.getTitle() + " con "

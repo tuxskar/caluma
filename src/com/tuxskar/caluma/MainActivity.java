@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import retrofit.Callback;
@@ -75,12 +76,16 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
+	
+	static SharedDB sharedDB;
+	static Map<Long, ArrayList<Long>> tsubjectsIds;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		sharedDB = new SharedDB(this.getApplicationContext());
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -110,7 +115,12 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			}
 		};
 	}
-
+	
+	@Override
+	protected void onDestroy() {
+		sharedDB.putIDMap(getString(R.string.TSUBJECTIDS), tsubjectsIds);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -144,7 +154,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	}
 	
 	public static void addEventCorrect(String title, Calendar start, Calendar end,
-			String description, String rrule, String location, Context context) {
+			String description, String rrule, String location, Context context, long tSubjectId) {
 //		long calID = 8;
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
 		long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
@@ -168,9 +178,10 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		values.put(Events.CALENDAR_ID, calID);
 		values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 		Uri uri = cr.insert(Events.CONTENT_URI, values);
-		long eventID = Long.parseLong(uri.getLastPathSegment());
+		Long eventId = Long.parseLong(uri.getLastPathSegment());
 //		Toast.makeText(context,
 //				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
+		MainActivity.sharedDB.saveID(tSubjectId, eventId);
 	}
 
 	/**
@@ -307,18 +318,13 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 
 				@Override
 				public void onClick(View arg0) {
-//					long calID = 8;
+					// TEST!!
 					SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
 					long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
-					
-					long startMillis = 0; 
-					long endMillis = 0;     
+					long startMillis = 0;   
 					Calendar beginTime = Calendar.getInstance();
 					beginTime.set(2014, 11, 14, 7, 30);
 					startMillis = beginTime.getTimeInMillis();
-//					Calendar endTime = Calendar.getInstance();
-//					endTime.set(2014, 11, 14, 8, 45);
-//					endMillis = end.getTimeInMillis();
 					ContentResolver cr = context.getContentResolver();
 					ContentValues values = new ContentValues();
 					values.put(Events.DTSTART, startMillis);
@@ -330,39 +336,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					values.put(Events.CALENDAR_ID, calID);
 					values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 					Uri uri = cr.insert(Events.CONTENT_URI, values);
-					
-					
 					long eventID = Long.parseLong(uri.getLastPathSegment());
-					
 					Toast.makeText(context,
 							"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
-					
-					
-					
-					
-					
-					
-					
-					
-					// seeCalendars();
-					// Calendar calstart = Calendar.getInstance(), calend =
-					// Calendar
-					// .getInstance();
-					// calend.add(Calendar.MINUTE, 31);
 					Calendar calStart1 = new GregorianCalendar(2014, 9, 5, 10,
 							0);
 					calStart1.setTimeZone(timezone);
 					Calendar calEnd2 = new GregorianCalendar(2014, 9, 5, 12, 45);
-					// Calendar calnew = new GregorianCalendar("20141126T1000");
 					calEnd2.setTimeZone(timezone);
-
-					// int min_duration = 45;
-					// Calendar calEnd1 = calStart1;
-					// calEnd1.add(Calendar.MINUTE, min_duration);
-					// addEventCorrect("Mates", calStart1, calEnd2,
-					// "Matem�ticas aplicadas a la bioinform�tica",
-					// "FREQ=WEEKLY;COUNT:50;BYDAY=MO,TU,WE"+";UNTIL="+calEnd2,
-					// "ETSII aula 3.0.6");
 					String until = calEnd2.getTime().toString();
 					Log.v("DIME UNTIL", until);
 					addEventCorrect("Mates", calStart1, calEnd2,
@@ -375,7 +356,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				}
 
 			});
-			// buttonRemoveEvent
 			Button buttonRemoveEvent = (Button) rootV
 					.findViewById(R.id.remove_events);
 			buttonRemoveEvent.setOnClickListener(new OnClickListener() {
@@ -386,8 +366,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				}
 
 			});
-			// buttonNew
-
 			return rootV;
 		}
 
@@ -445,17 +423,12 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			calEvent.put(CalendarContract.Events.TITLE, title);
 			calEvent.put(CalendarContract.Events.DTSTART,
 					start.getTimeInMillis());
-			// calEvent.put(CalendarContract.Events.RDATE,
-			// start.getTimeInMillis());
 			calEvent.put(CalendarContract.Events.DTEND, end.getTimeInMillis());
-			// calEvent.put(CalendarContract.Events.DURATION, "P20W");
 			calEvent.put(CalendarContract.Events.EVENT_TIMEZONE,
 					"Europe/Madrid");
 			calEvent.put(CalendarContract.Events.RRULE, rrule);
 			calEvent.put(CalendarContract.Events.DESCRIPTION, description);
 			calEvent.put(CalendarContract.Events.EVENT_LOCATION, location);
-
-
 			Uri uri = contentResolver.insert(
 					CalendarContract.Events.CONTENT_URI, calEvent);
 			// The returned Uri contains the content-retriever URI for
