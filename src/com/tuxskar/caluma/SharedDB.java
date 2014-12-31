@@ -253,4 +253,13 @@ public class SharedDB {
 	public boolean savedTSubject(long id){
 		return SharedDB.tsubjectsIds.containsKey(id);
 	}
+	
+	public void removeTSubject(long tSubjectId){
+		SharedDB.tsubjectsIds.remove(tSubjectId);
+	}
+	
+	public  ArrayList<Long> getEventIds(long tSubjectId){
+		// Returns the arraList associated to the tSubject argument
+		return SharedDB.tsubjectsIds.get(tSubjectId);
+	}
 }

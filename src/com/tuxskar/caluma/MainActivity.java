@@ -155,17 +155,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	
 	public static void addEventCorrect(String title, Calendar start, Calendar end,
 			String description, String rrule, String location, Context context, long tSubjectId) {
-//		long calID = 8;
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
 		long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
-		
 		long startMillis = 0; 
 		long endMillis = 0;     
-//		Calendar beginTime = Calendar.getInstance();
-//		beginTime.set(2014, 11, 14, 7, 30);
 		startMillis = start.getTimeInMillis();
-//		Calendar endTime = Calendar.getInstance();
-//		endTime.set(2014, 11, 14, 8, 45);
 		endMillis = end.getTimeInMillis();
 		ContentResolver cr = context.getContentResolver();
 		ContentValues values = new ContentValues();
@@ -182,6 +176,18 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 //		Toast.makeText(context,
 //				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
 		MainActivity.sharedDB.saveID(tSubjectId, eventId);
+	}
+	
+	public static int deleteEventId(Context context, Long tSubjectId){
+		ArrayList<String> selArgs = new ArrayList<String>();
+		for (Long eventId : MainActivity.sharedDB.getEventIds(tSubjectId)){
+			selArgs.add(Long.toString(eventId));
+		}
+		int deleted =  context.getContentResolver()
+				.delete(Events.CONTENT_URI, Events._ID + " =? ", (String[]) selArgs.toArray());
+
+		MainActivity.sharedDB.removeTSubject(tSubjectId);
+		return deleted;
 	}
 
 	/**
@@ -448,6 +454,8 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					Toast.LENGTH_SHORT).show();
 		}
 	}
+	
+
 
 	/**
 	 * A placeholder fragment containing a simple view.

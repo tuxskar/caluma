@@ -52,12 +52,12 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 			viewHolder.text = (TextView) view.findViewById(R.id.label);
 			viewHolder.checkbox = (CheckBox) view.findViewById(R.id.check);
 			SubjectSimple element = list.get(position);
-			if (element.getT_subject().length == 0){
+			if (element.getT_subject().length == 0) {
 				viewHolder.checkbox.setActivated(false);
-			}else {
+			} else {
 				long tSubjectId = element.getT_subject()[0];
 				boolean idFound = false;
-				if (MainActivity.sharedDB.savedTSubject(tSubjectId)){
+				if (MainActivity.sharedDB.savedTSubject(tSubjectId)) {
 					idFound = true;
 				}
 				viewHolder.checkbox.setChecked(idFound);
@@ -70,12 +70,17 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 								boolean isChecked) {
 							SubjectSimple element = (SubjectSimple) viewHolder.checkbox
 									.getTag();
-							// add calendar event
-							addCalendarEvent(element);
+							if (isChecked) {
+								// add calendar event
+								addCalendarEvent(element);
+							} else {
+								removeCalendarEvent(element);
+							}
 
 							element.setSelected(buttonView.isChecked());
 
 						}
+
 					});
 			view.setTag(viewHolder);
 			viewHolder.checkbox.setTag(list.get(position));
@@ -157,7 +162,8 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 										endDate,
 										tm.getDescription() == null ? "" : tm
 												.getDescription(), RRULE, tm
-												.getAddress(), context, result.getId());
+												.getAddress(), context, result
+												.getId());
 
 							}
 							for (Exam ex : result.getExams()) {
@@ -167,27 +173,28 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 								String endTime[] = ex.getEnd_time().split(":");
 
 								Calendar startDate = new GregorianCalendar(
-										Integer.parseInt(date[0]), 
-										Integer.parseInt(date[1]) - 1, 
-										Integer.parseInt(date[2]), 
-										Integer.parseInt(startTime[0]),
-										Integer.parseInt(startTime[1]), 
-										Integer.parseInt(startTime[2]));
+										Integer.parseInt(date[0]), Integer
+												.parseInt(date[1]) - 1, Integer
+												.parseInt(date[2]), Integer
+												.parseInt(startTime[0]),
+										Integer.parseInt(startTime[1]), Integer
+												.parseInt(startTime[2]));
 								Calendar endDate = new GregorianCalendar(
-										Integer.parseInt(date[0]), 
-										Integer.parseInt(date[1]) - 1, 
-										Integer.parseInt(date[2]), 
-										Integer.parseInt(endTime[0]),
-										Integer.parseInt(endTime[1]), 
-										Integer.parseInt(endTime[2]));
-								
+										Integer.parseInt(date[0]), Integer
+												.parseInt(date[1]) - 1, Integer
+												.parseInt(date[2]), Integer
+												.parseInt(endTime[0]), Integer
+												.parseInt(endTime[1]), Integer
+												.parseInt(endTime[2]));
+
 								MainActivity.addEventCorrect(
 										ex.getTitle(),
 										startDate,
 										endDate,
 										ex.getDescription() == null ? "" : ex
 												.getDescription(), "", ex
-												.getAddress(), context, result.getId());
+												.getAddress(), context, result
+												.getId());
 							}
 							message += "A–adido calendario para "
 									+ element.getTitle() + " con "
@@ -206,5 +213,17 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 					"Esta asignatura no se est‡ impartiendo actualmente",
 					Toast.LENGTH_LONG).show();
 		}
+	}
+
+	private void removeCalendarEvent(SubjectSimple element) {
+		// TODO Remove calendar event using the element id
+		// TODO future: not select just the first tSubject but all the tSubjects associated to the subject
+		if (element.getT_subject().length > 0) {
+			MainActivity.deleteEventId(context, element.getT_subject()[0]);
+			Toast.makeText(context,
+					"Se ha eliminado la asignatura " + element.getTitle(),
+					Toast.LENGTH_LONG).show();
+		}
+		
 	}
 }
