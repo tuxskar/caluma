@@ -76,7 +76,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
-	
+
 	static SharedDB sharedDB;
 	static Map<Long, ArrayList<Long>> tsubjectsIds;
 
@@ -115,12 +115,13 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			}
 		};
 	}
-	
+
 	@Override
-	protected void onDestroy() {
+	protected void onStop() {
 		sharedDB.putIDMap(getString(R.string.TSUBJECTIDS), tsubjectsIds);
+		super.onStop();
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -152,13 +153,17 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
 	}
-	
-	public static void addEventCorrect(String title, Calendar start, Calendar end,
-			String description, String rrule, String location, Context context, long tSubjectId) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
-		long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
-		long startMillis = 0; 
-		long endMillis = 0;     
+
+	public static void addEventCorrect(String title, Calendar start,
+			Calendar end, String description, String rrule, String location,
+			Context context, long tSubjectId) {
+		SharedPreferences sharedPref = context.getSharedPreferences(
+				context.getString(R.string.calendarPreferences),
+				Context.MODE_PRIVATE);
+		long calID = sharedPref.getLong(
+				context.getString(R.string.selectedCalendarId), 1);
+		long startMillis = 0;
+		long endMillis = 0;
 		startMillis = start.getTimeInMillis();
 		endMillis = end.getTimeInMillis();
 		ContentResolver cr = context.getContentResolver();
@@ -173,18 +178,23 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 		Uri uri = cr.insert(Events.CONTENT_URI, values);
 		Long eventId = Long.parseLong(uri.getLastPathSegment());
-//		Toast.makeText(context,
-//				"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
+		// Toast.makeText(context,
+		// "Created Calendar Event " + eventID + " CalId: " +
+		// Long.toString(calID), Toast.LENGTH_SHORT).show();
 		MainActivity.sharedDB.saveID(tSubjectId, eventId);
 	}
-	
-	public static int deleteEventId(Context context, Long tSubjectId){
-		ArrayList<String> selArgs = new ArrayList<String>();
-		for (Long eventId : MainActivity.sharedDB.getEventIds(tSubjectId)){
-			selArgs.add(Long.toString(eventId));
+
+	public static int deleteEventId(Context context, Long tSubjectId) {
+		int deleted = 0;
+		for (Long eventId : MainActivity.sharedDB.getEventIds(tSubjectId)) {
+//			selArgs.add(Long.toString(eventId));
+			deleted += context.getContentResolver().delete(Events.CONTENT_URI,
+					Events._ID + " = " + Long.toString(eventId), null);
 		}
-		int deleted =  context.getContentResolver()
-				.delete(Events.CONTENT_URI, Events._ID + " =? ", (String[]) selArgs.toArray());
+//		ArrayList<String> selArgs = new ArrayList<String>();
+//		String[] selArray = new String[selArgs.size()];
+//		String[] selArray = {selArgs.get(0), selArgs.get(1), selArgs.get(2)};
+//		selArray = selArgs.toArray(selArray);
 
 		MainActivity.sharedDB.removeTSubject(tSubjectId);
 		return deleted;
@@ -255,6 +265,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				READ_FORMAT_DATETIME, Locale.ENGLISH);
 		public static TimeZone timezone = TimeZone.getTimeZone("Europe/Madrid");
 		public Context context;
+
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
@@ -304,11 +315,17 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					tv_account.setText(calendarAccounts.get(arg2));
 					tv_type.setText(calendarTypes.get(arg2));
 					SelectedCalendarId = calendarIds.get(arg2);
-					SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);;
+					SharedPreferences sharedPref = context
+							.getSharedPreferences(context
+									.getString(R.string.calendarPreferences),
+									Context.MODE_PRIVATE);
+					;
 					SharedPreferences.Editor editor = sharedPref.edit();
-					editor.putLong(getString(R.string.selectedCalendarId), SelectedCalendarId);
+					editor.putLong(getString(R.string.selectedCalendarId),
+							SelectedCalendarId);
 					editor.commit();
-					Log.d("CalendarID selected:", Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
+					Log.d("CalendarID selected:",
+							Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
 				}
 
 				@Override
@@ -325,26 +342,35 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				@Override
 				public void onClick(View arg0) {
 					// TEST!!
-					SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.calendarPreferences), Context.MODE_PRIVATE);
-					long calID = sharedPref.getLong(context.getString(R.string.selectedCalendarId), 1);
-					long startMillis = 0;   
+					SharedPreferences sharedPref = context
+							.getSharedPreferences(context
+									.getString(R.string.calendarPreferences),
+									Context.MODE_PRIVATE);
+					long calID = sharedPref.getLong(
+							context.getString(R.string.selectedCalendarId), 1);
+					long startMillis = 0;
 					Calendar beginTime = Calendar.getInstance();
 					beginTime.set(2014, 11, 14, 7, 30);
 					startMillis = beginTime.getTimeInMillis();
 					ContentResolver cr = context.getContentResolver();
 					ContentValues values = new ContentValues();
 					values.put(Events.DTSTART, startMillis);
-//					values.put(Events.DTEND, endMillis);
+					// values.put(Events.DTEND, endMillis);
 					values.put(Events.TITLE, "Elegido directamente");
 					values.put(Events.DURATION, "PT30M");
-					values.put(Events.DESCRIPTION, "Una descripci—n para el elegido directamente a mano");
-					values.put(Events.EVENT_LOCATION, "En tu casa o en la mia :P");
+					values.put(Events.DESCRIPTION,
+							"Una descripci—n para el elegido directamente a mano");
+					values.put(Events.EVENT_LOCATION,
+							"En tu casa o en la mia :P");
 					values.put(Events.CALENDAR_ID, calID);
 					values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
 					Uri uri = cr.insert(Events.CONTENT_URI, values);
 					long eventID = Long.parseLong(uri.getLastPathSegment());
-					Toast.makeText(context,
-							"Created Calendar Event " + eventID + " CalId: " + Long.toString(calID), Toast.LENGTH_SHORT).show();
+					Toast.makeText(
+							context,
+							"Created Calendar Event " + eventID + " CalId: "
+									+ Long.toString(calID), Toast.LENGTH_SHORT)
+							.show();
 					Calendar calStart1 = new GregorianCalendar(2014, 9, 5, 10,
 							0);
 					calStart1.setTimeZone(timezone);
@@ -393,16 +419,11 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					Calendars.ACCOUNT_NAME, Calendars.ACCOUNT_TYPE };
 			Cursor calCursor = this.getActivity().getContentResolver()
 					.query(Calendars.CONTENT_URI, projection,
-					// Calendars.VISIBLE + " = 1",
 							null, null, Calendars._ID + " DESC");
-//			if (calendarNames == null) {
-				calendarNames = new ArrayList<String>();
-				calendarAccounts = new ArrayList<String>();
-				calendarTypes = new ArrayList<String>();
-//			}
-//			if (calendarIds == null) {
-				calendarIds = new ArrayList<Long>();
-//			}
+			calendarNames = new ArrayList<String>();
+			calendarAccounts = new ArrayList<String>();
+			calendarTypes = new ArrayList<String>();
+			calendarIds = new ArrayList<Long>();
 			if (calCursor.moveToFirst()) {
 				do {
 					String name = calCursor.getString(1);
@@ -454,8 +475,6 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					Toast.LENGTH_SHORT).show();
 		}
 	}
-	
-
 
 	/**
 	 * A placeholder fragment containing a simple view.
@@ -472,22 +491,18 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		private int argSchoolSelected;
 		private int argDegreeSelected;
 		Context context;
-
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
 		public static SubjectsSearcherFragment newInstance(int sectionNumber) {
 			SubjectsSearcherFragment fragment = new SubjectsSearcherFragment();
-			Gson gson = new GsonBuilder()
-			.setDateFormat("yyyy-MM-dd")
-			.create();
+			Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(WSHandler.SERVICE_ENDPOINT)
 					.setErrorHandler(new WSErrorHandler())
 					.setRequestInterceptor(MainActivity.requestInterceptor)
-					.setConverter(new GsonConverter(gson))
-					.build();
+					.setConverter(new GsonConverter(gson)).build();
 
 			service = restAdapter.create(WSHandler.class);
 
@@ -511,13 +526,17 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			service.listSchoolCB(new Callback<WSInfo<School>>() {
 				@Override
 				public void failure(RetrofitError arg0) {
-					if (arg0.getCause() != null){
-					Toast.makeText(context, "Fail getSchool" + arg0.getCause().toString(), Toast.LENGTH_LONG).show();
-					Log.e("failure school", arg0.getCause().toString());
-					}else{
-						Toast.makeText(context, "Fail getSchool no Cause" + arg0.toString(), Toast.LENGTH_LONG).show();
+					if (arg0.getCause() != null) {
+						Toast.makeText(context,
+								"Fail getSchool" + arg0.getCause().toString(),
+								Toast.LENGTH_LONG).show();
+						Log.e("failure school", arg0.getCause().toString());
+					} else {
+						Toast.makeText(context,
+								"Fail getSchool no Cause" + arg0.toString(),
+								Toast.LENGTH_LONG).show();
 						Log.e("failure school", arg0.toString());
-							
+
 					}
 				}
 
@@ -539,7 +558,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			dataAdapter
 					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			schoolSpinner.setAdapter(dataAdapter);
-			
+
 			schoolSpinner
 					.setOnItemSelectedListener(new OnItemSelectedListener() {
 						@Override
@@ -553,10 +572,9 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 						}
 					});
 
-
 		}
-		
-		private void setDegrees(int schoolSelected){
+
+		private void setDegrees(int schoolSelected) {
 			argSchoolSelected = schoolSelected;
 			Spinner degreeSpinner = (Spinner) rootV
 					.findViewById(R.id.spinner_degree);
@@ -565,22 +583,24 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 					wsSchool.getResults().get(argSchoolSelected).getDegrees());
 			dataAdapter
 					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			degreeSpinner.setAdapter(dataAdapter);
+			
 			degreeSpinner
-			.setOnItemSelectedListener(new OnItemSelectedListener() {
-				@Override
-				public void onItemSelected(AdapterView<?> arg0,
-						View arg1, int arg2, long arg3) {
-					argDegreeSelected = arg2;
-					getSubjects(wsSchool.getResults().get(argSchoolSelected).getDegrees().get(argDegreeSelected).getId());
-				}
+					.setOnItemSelectedListener(new OnItemSelectedListener() {
+						@Override
+						public void onItemSelected(AdapterView<?> arg0,
+								View arg1, int arg2, long arg3) {
+							argDegreeSelected = arg2;
+							getSubjects(wsSchool.getResults()
+									.get(argSchoolSelected).getDegrees()
+									.get(argDegreeSelected).getId());
+						}
 
-				@Override
-				public void onNothingSelected(AdapterView<?> arg0) {
-				}
-			});
-			
-			
+						@Override
+						public void onNothingSelected(AdapterView<?> arg0) {
+						}
+					});
+			degreeSpinner.setAdapter(dataAdapter);
+
 		}
 
 		public void getSubjects(long degreeId) {
@@ -597,15 +617,14 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 				}
 			});
 		}
-		
-		private void populateSubjects(){
-			ArrayAdapter<SubjectSimple> adapter = new SubjectArrayAdapter(this.getActivity(),
-					selectedDegree.getSubjects());
-			ListView subjects_list = (ListView) rootV.findViewById(R.id.subjects_list);
-			subjects_list.setAdapter(adapter);
-		}
-		
 
+		private void populateSubjects() {
+				ArrayAdapter<SubjectSimple> adapter = new SubjectArrayAdapter(
+						this.getActivity(), selectedDegree.getSubjects());
+				ListView subjects_list = (ListView) rootV
+						.findViewById(R.id.subjects_list);
+				subjects_list.setAdapter(adapter);
+		}
 
 	}
 

@@ -28,13 +28,13 @@ import com.tuxskar.caluma.ws.models.Timetable;
 
 public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 
-	private final List<SubjectSimple> list;
+	private final List<SubjectSimple> subjects;
 	private final Activity context;
 
-	public SubjectArrayAdapter(Activity context, List<SubjectSimple> list) {
-		super(context, R.layout.subject_row, list);
+	public SubjectArrayAdapter(Activity context, List<SubjectSimple> subjects) {
+		super(context, R.layout.subject_row, subjects);
 		this.context = context;
-		this.list = list;
+		this.subjects = subjects;
 	}
 
 	static class ViewHolder {
@@ -44,54 +44,48 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View view = null;
-		if (convertView == null) {
+		View rowView = convertView;
+		SubjectSimple element = subjects.get(position);
+		if (rowView == null) {
 			LayoutInflater inflator = context.getLayoutInflater();
-			view = inflator.inflate(R.layout.subject_row, null);
-			final ViewHolder viewHolder = new ViewHolder();
-			viewHolder.text = (TextView) view.findViewById(R.id.label);
-			viewHolder.checkbox = (CheckBox) view.findViewById(R.id.check);
-			SubjectSimple element = list.get(position);
-			if (element.getT_subject().length == 0) {
-				viewHolder.checkbox.setActivated(false);
-			} else {
-				long tSubjectId = element.getT_subject()[0];
-				boolean idFound = false;
-				if (MainActivity.sharedDB.savedTSubject(tSubjectId)) {
-					idFound = true;
-				}
-				viewHolder.checkbox.setChecked(idFound);
-			}
-			viewHolder.checkbox
-					.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-						@Override
-						public void onCheckedChanged(CompoundButton buttonView,
-								boolean isChecked) {
-							SubjectSimple element = (SubjectSimple) viewHolder.checkbox
-									.getTag();
-							if (isChecked) {
-								// add calendar event
-								addCalendarEvent(element);
-							} else {
-								removeCalendarEvent(element);
-							}
-
-							element.setSelected(buttonView.isChecked());
-
-						}
-
-					});
-			view.setTag(viewHolder);
-			viewHolder.checkbox.setTag(list.get(position));
-		} else {
-			view = convertView;
-			((ViewHolder) view.getTag()).checkbox.setTag(list.get(position));
+			rowView = inflator.inflate(R.layout.subject_row, null);
+			ViewHolder viewHolder = new ViewHolder();
+			viewHolder.text = (TextView) rowView.findViewById(R.id.label);
+			viewHolder.checkbox = (CheckBox) rowView.findViewById(R.id.check);
+			rowView.setTag(viewHolder);
+			viewHolder.checkbox.setTag(element);
 		}
-		ViewHolder holder = (ViewHolder) view.getTag();
-		holder.text.setText(list.get(position).getTitle());
-		holder.checkbox.setChecked(list.get(position).isSelected());
-		return view;
+		ViewHolder holder = (ViewHolder) rowView.getTag();
+		holder.text.setText(String.valueOf(position) + element.getTitle());
+		long tSubjectId = 0;
+		if (element.getT_subject().length == 0) {
+			holder.checkbox.setEnabled(false);
+		} else {
+			holder.checkbox.setEnabled(true);
+			tSubjectId = element.getT_subject()[0];
+			boolean idFound = false;
+			if (MainActivity.sharedDB.savedTSubject(tSubjectId)) {
+				idFound = true;
+			}
+			holder.checkbox.setChecked(idFound);
+		}
+		holder.checkbox
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						SubjectSimple element = (SubjectSimple) buttonView.getTag();
+						if (isChecked) {
+							// add calendar event
+							addCalendarEvent(element);
+						} else {
+							removeCalendarEvent(element);
+						}
+						element.setSelected(isChecked);
+					}
+
+				});
+		return rowView;
 	}
 
 	public void addCalendarEvent(final SubjectSimple element) {
@@ -217,13 +211,14 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 
 	private void removeCalendarEvent(SubjectSimple element) {
 		// TODO Remove calendar event using the element id
-		// TODO future: not select just the first tSubject but all the tSubjects associated to the subject
+		// TODO future: not select just the first tSubject but all the tSubjects
+		// associated to the subject
 		if (element.getT_subject().length > 0) {
 			MainActivity.deleteEventId(context, element.getT_subject()[0]);
 			Toast.makeText(context,
 					"Se ha eliminado la asignatura " + element.getTitle(),
 					Toast.LENGTH_LONG).show();
 		}
-		
+
 	}
 }
