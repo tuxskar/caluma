@@ -45,7 +45,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView = convertView;
-		SubjectSimple element = subjects.get(position);
+//		SubjectSimple element = subjects.get(position);
 		if (rowView == null) {
 			LayoutInflater inflator = context.getLayoutInflater();
 			rowView = inflator.inflate(R.layout.subject_row, null);
@@ -53,10 +53,11 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 			viewHolder.text = (TextView) rowView.findViewById(R.id.label);
 			viewHolder.checkbox = (CheckBox) rowView.findViewById(R.id.check);
 			rowView.setTag(viewHolder);
-			viewHolder.checkbox.setTag(element);
 		}
 		ViewHolder holder = (ViewHolder) rowView.getTag();
-		holder.text.setText(String.valueOf(position) + element.getTitle());
+		SubjectSimple element = getItem(position);
+		holder.checkbox.setTag(element);
+		holder.text.setText(element.getTitle());
 		long tSubjectId = 0;
 		if (element.getT_subject().length == 0) {
 			holder.checkbox.setEnabled(false);
@@ -70,25 +71,27 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 			holder.checkbox.setChecked(idFound);
 		}
 		holder.checkbox
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				.setOnClickListener(new CompoundButton.OnClickListener() {
 					@Override
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						SubjectSimple element = (SubjectSimple) buttonView.getTag();
+					public void onClick(View v) {
+						SubjectSimple element = (SubjectSimple) v.getTag();
+						boolean isChecked = ((CheckBox)v).isChecked();
 						if (isChecked) {
 							// add calendar event
-							addCalendarEvent(element);
+							boolean ret = addCalendarEvent(element);
+							((CheckBox)v).setChecked(ret);
+							element.setSelected(ret);
 						} else {
 							removeCalendarEvent(element);
+							((CheckBox)v).setChecked(false);
+							element.setSelected(false);
 						}
-						element.setSelected(isChecked);
 					}
-
 				});
 		return rowView;
 	}
 
-	public void addCalendarEvent(final SubjectSimple element) {
+	public boolean addCalendarEvent(final SubjectSimple element) {
 		// TODO future: ask for the user to select the teachingSubjects that
 		// fits
 		// better choosing level and course
@@ -202,10 +205,12 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 									.show();
 						}
 					});
+			return true;
 		} else {
 			Toast.makeText(context,
-					"Esta asignatura no se est‡ impartiendo actualmente",
+					"Esta asignatura no se est‡ impartiendo actualmente " + element.getTitle(),
 					Toast.LENGTH_LONG).show();
+			return false;
 		}
 	}
 
