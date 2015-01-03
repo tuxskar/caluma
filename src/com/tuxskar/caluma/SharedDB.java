@@ -24,16 +24,17 @@ public class SharedDB {
 	public SharedDB(Context appContext) {
 		mContext = appContext;
 		preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-//		tsubjectsIds map initialization using singleton pattern
-		if (SharedDB.tsubjectsIds == null){
-			SharedDB.tsubjectsIds = getIDMap(appContext.getString(R.string.TSUBJECTIDS));
+		// tsubjectsIds map initialization using singleton pattern
+		if (SharedDB.tsubjectsIds == null) {
+			SharedDB.tsubjectsIds = getIDMap(appContext
+					.getString(R.string.TSUBJECTIDS));
 		}
 	}
 
 	public int getInt(String key) {
 		return preferences.getInt(key, 0);
 	}
-	
+
 	public long getLong(String key) {
 		return preferences.getLong(key, 0l);
 	}
@@ -41,16 +42,14 @@ public class SharedDB {
 	public String getString(String key) {
 		return preferences.getString(key, "");
 	}
-	
+
 	public double getDouble(String key) {
 		String number = getString(key);
 		try {
-		 double value = Double.parseDouble(number);
-		 return value;
-		}
-		catch(NumberFormatException e)
-		{
-		  return 0;
+			double value = Double.parseDouble(number);
+			return value;
+		} catch (NumberFormatException e) {
+			return 0;
 		}
 	}
 
@@ -59,13 +58,13 @@ public class SharedDB {
 		editor.putInt(key, value);
 		editor.apply();
 	}
-	
+
 	public void putLong(String key, long value) {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putLong(key, value);
 		editor.apply();
 	}
-	
+
 	public void putDouble(String key, double value) {
 		putString(key, String.valueOf(value));
 	}
@@ -85,16 +84,17 @@ public class SharedDB {
 		editor.putString(key, TextUtils.join("‚‗‚", mystringlist));
 		editor.apply();
 	}
-	
+
 	public void putIDMap(String key, Map<Long, ArrayList<Long>> mIDs) {
-		// The shared preference list is a list of string with type like "<tsubjectId>-<eventAntdroidID>"
-		if (mIDs == null){
+		// The shared preference list is a list of string with type like
+		// "<tsubjectId>-<eventAntdroidID>"
+		if (mIDs == null) {
 			mIDs = SharedDB.tsubjectsIds;
 		}
 		ArrayList<String> mystringlist = new ArrayList<String>();
-		for(Entry<Long, ArrayList<Long>> ma : mIDs.entrySet()){
+		for (Entry<Long, ArrayList<Long>> ma : mIDs.entrySet()) {
 			String tsubjectID = String.valueOf(ma.getKey());
-			for(Long eventId : ma.getValue()){
+			for (Long eventId : ma.getValue()) {
 				mystringlist.add(tsubjectID + "-" + String.valueOf(eventId));
 			}
 		}
@@ -102,23 +102,25 @@ public class SharedDB {
 		editor.putString(key, TextUtils.join(";", mystringlist));
 		editor.apply();
 	}
-	
-	@SuppressLint("UseSparseArrays") public Map<Long, ArrayList<Long>> getIDMap(String key) {
+
+	@SuppressLint("UseSparseArrays")
+	public Map<Long, ArrayList<Long>> getIDMap(String key) {
 		// TODO: check performance using LongSparseArrays instead of HasMap
-		// The shared preference list is a list of string with type like "<tsubjectId>-<eventAntdroidID>"
-		String[] pairStrings = TextUtils
-				.split(preferences.getString(key, ""), ";");
+		// The shared preference list is a list of string with type like
+		// "<tsubjectId>-<eventAntdroidID>"
+		String[] pairStrings = TextUtils.split(preferences.getString(key, ""),
+				";");
 		Map<Long, ArrayList<Long>> finalmap = new HashMap<Long, ArrayList<Long>>();
 
 		Long subjectId, eventId;
-		for(String pair : pairStrings){
+		for (String pair : pairStrings) {
 			String[] longPair = pair.split("-");
 			subjectId = Long.parseLong(longPair[0]);
 			eventId = Long.parseLong(longPair[1]);
-			if (finalmap.containsKey(subjectId)){
+			if (finalmap.containsKey(subjectId)) {
 				ArrayList<Long> events = finalmap.get(subjectId);
 				events.add(eventId);
-			}else{
+			} else {
 				ArrayList<Long> initial = new ArrayList<Long>();
 				initial.add(eventId);
 				finalmap.put(subjectId, initial);
@@ -147,7 +149,7 @@ public class SharedDB {
 		editor.putString(key, TextUtils.join("‚‗‚", mystringlist));
 		editor.apply();
 	}
-	
+
 	public ArrayList<Integer> getListInt(String key) {
 		// the comma like character used below is not a comma it is the SINGLE
 		// LOW-9 QUOTATION MARK unicode 201A and unicode 2017 they are used for
@@ -163,32 +165,32 @@ public class SharedDB {
 
 		return gottenlist2;
 	}
-	
-	public void putListBoolean(String key, ArrayList<Boolean> marray){
+
+	public void putListBoolean(String key, ArrayList<Boolean> marray) {
 		ArrayList<String> origList = new ArrayList<String>();
-		for(Boolean b : marray){
-			if(b==true){
+		for (Boolean b : marray) {
+			if (b == true) {
 				origList.add("true");
-			}else{
+			} else {
 				origList.add("false");
 			}
 		}
 		putList(key, origList);
 	}
-	
+
 	public ArrayList<Boolean> getListBoolean(String key) {
 		ArrayList<String> origList = getList(key);
 		ArrayList<Boolean> mBools = new ArrayList<Boolean>();
-		for(String b : origList){
-			if(b.equals("true")){
+		for (String b : origList) {
+			if (b.equals("true")) {
 				mBools.add(true);
-			}else{ 
+			} else {
 				mBools.add(false);
-			} 
+			}
 		}
 		return mBools;
 	}
-	
+
 	public void putBoolean(String key, boolean value) {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(key, value);

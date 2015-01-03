@@ -109,12 +109,12 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 		requestInterceptor = new RequestInterceptor() {
 			@Override
 			public void intercept(RequestFacade request) {
-				String token = sharedDB.getString(getString(R.string.userToken));
-				if (token == ""){
+				String token = sharedDB
+						.getString(getString(R.string.userToken));
+				if (token == "") {
 					token = WSHandler.android_key;
 				}
-				request.addHeader("Authorization", " Token "
-						+ token);
+				request.addHeader("Authorization", " Token " + token);
 				request.addHeader("WWW-Authenticate", " Token");
 			}
 		};
@@ -129,7 +129,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		// getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -191,14 +191,14 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 	public static int deleteEventId(Context context, Long tSubjectId) {
 		int deleted = 0;
 		for (Long eventId : HomeActivity.sharedDB.getEventIds(tSubjectId)) {
-//			selArgs.add(Long.toString(eventId));
+			// selArgs.add(Long.toString(eventId));
 			deleted += context.getContentResolver().delete(Events.CONTENT_URI,
 					Events._ID + " = " + Long.toString(eventId), null);
 		}
-//		ArrayList<String> selArgs = new ArrayList<String>();
-//		String[] selArray = new String[selArgs.size()];
-//		String[] selArray = {selArgs.get(0), selArgs.get(1), selArgs.get(2)};
-//		selArray = selArgs.toArray(selArray);
+		// ArrayList<String> selArgs = new ArrayList<String>();
+		// String[] selArray = new String[selArgs.size()];
+		// String[] selArray = {selArgs.get(0), selArgs.get(1), selArgs.get(2)};
+		// selArray = selArgs.toArray(selArray);
 
 		HomeActivity.sharedDB.removeTSubject(tSubjectId);
 		return deleted;
@@ -228,7 +228,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 
 		@Override
 		public int getCount() {
-			return 4;
+			return 3;
 		}
 
 		@Override
@@ -241,8 +241,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 				return getString(R.string.title_section1).toUpperCase(l);
 			case 2:
 				return getString(R.string.title_section2).toUpperCase(l);
-			case 3:
-				return getString(R.string.title_section3).toUpperCase(l);
 			}
 			return null;
 		}
@@ -421,9 +419,11 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 		public void populateCalendars() {
 			String[] projection = new String[] { Calendars._ID, Calendars.NAME,
 					Calendars.ACCOUNT_NAME, Calendars.ACCOUNT_TYPE };
-			Cursor calCursor = this.getActivity().getContentResolver()
-					.query(Calendars.CONTENT_URI, projection,
-							null, null, Calendars._ID + " DESC");
+			Cursor calCursor = this
+					.getActivity()
+					.getContentResolver()
+					.query(Calendars.CONTENT_URI, projection, null, null,
+							Calendars._ID + " DESC");
 			calendarNames = new ArrayList<String>();
 			calendarAccounts = new ArrayList<String>();
 			calendarTypes = new ArrayList<String>();
@@ -495,6 +495,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 		private int argSchoolSelected;
 		private int argDegreeSelected;
 		Context context;
+
 		/**
 		 * Returns a new instance of this fragment for the given section number.
 		 */
@@ -587,7 +588,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 					wsSchool.getResults().get(argSchoolSelected).getDegrees());
 			dataAdapter
 					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			
+
 			degreeSpinner
 					.setOnItemSelectedListener(new OnItemSelectedListener() {
 						@Override
@@ -623,11 +624,11 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 		}
 
 		private void populateSubjects() {
-				ArrayAdapter<SubjectSimple> adapter = new SubjectArrayAdapter(
-						this.getActivity(), selectedDegree.getSubjects());
-				ListView subjects_list = (ListView) rootV
-						.findViewById(R.id.subjects_list);
-				subjects_list.setAdapter(adapter);
+			ArrayAdapter<SubjectSimple> adapter = new SubjectArrayAdapter(
+					this.getActivity(), selectedDegree.getSubjects());
+			ListView subjects_list = (ListView) rootV
+					.findViewById(R.id.subjects_list);
+			subjects_list.setAdapter(adapter);
 		}
 
 	}
@@ -666,8 +667,9 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 			Log.v("FRAGMENT",
 					Integer.toString(this.getArguments().getInt(
 							ARG_SECTION_NUMBER)));
-			tv.setText(Integer.toString(this.getArguments().getInt(
-					ARG_SECTION_NUMBER)));
+			// tv.setText(Integer.toString(this.getArguments().getInt(
+			// ARG_SECTION_NUMBER)));
+			tv.setText("EN CONSTRUCCIÓN");
 			((LinearLayout) rootView.findViewById(R.id.content)).addView(tv);
 			return rootView;
 		}
