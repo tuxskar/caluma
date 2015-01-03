@@ -198,68 +198,71 @@ public class SharedDB {
 	public boolean getBoolean(String key) {
 		return preferences.getBoolean(key, false);
 	}
-	
+
 	public void putFloat(String key, float value) {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putFloat(key, value);
 		editor.apply();
 	}
-	
+
 	public float getFloat(String key) {
 		return preferences.getFloat(key, 0f);
 	}
-	
+
 	public void remove(String key) {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.remove(key);
 		editor.apply();
 	}
-	
-	public Boolean deleteImage(String path){
+
+	public Boolean deleteImage(String path) {
 		File tobedeletedImage = new File(path);
 		Boolean isDeleted = tobedeletedImage.delete();
 		return isDeleted;
 	}
-	
+
 	public void clear() {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.clear();
 		editor.apply();
 	}
-	
+
 	public Map<String, ?> getAll() {
 		return preferences.getAll();
 	}
-	
-	public void registerOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+
+	public void registerOnSharedPreferenceChangeListener(
+			SharedPreferences.OnSharedPreferenceChangeListener listener) {
 		preferences.registerOnSharedPreferenceChangeListener(listener);
 	}
-	
-	public void unregisterOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+
+	public void unregisterOnSharedPreferenceChangeListener(
+			SharedPreferences.OnSharedPreferenceChangeListener listener) {
 		preferences.unregisterOnSharedPreferenceChangeListener(listener);
 	}
 
 	public void saveID(long id, Long eventId) {
-		//	Save a tsubject event on the tsubjects map
-		if (SharedDB.tsubjectsIds.containsKey(id)){
+		// Save a tsubject event on the tsubjects map
+		if (SharedDB.tsubjectsIds.containsKey(id)) {
 			SharedDB.tsubjectsIds.get(id).add(eventId);
-		}else{
+		} else {
 			ArrayList<Long> lEventId = new ArrayList<Long>();
 			lEventId.add(eventId);
 			SharedDB.tsubjectsIds.put(id, lEventId);
 		}
 	}
 
-	public boolean savedTSubject(long id){
+	public boolean savedTSubject(long id) {
 		return SharedDB.tsubjectsIds.containsKey(id);
 	}
-	
-	public void removeTSubject(long tSubjectId){
+
+	public void removeTSubject(long tSubjectId) {
 		SharedDB.tsubjectsIds.remove(tSubjectId);
 	}
-	
-	public  ArrayList<Long> getEventIds(long tSubjectId){
+
+	public ArrayList<Long> getEventIds(long tSubjectId) {
 		// Returns the arraList associated to the tSubject argument
-		return SharedDB.tsubjectsIds.get(tSubjectId);
+		return SharedDB.tsubjectsIds.containsKey(tsubjectsIds) ? SharedDB.tsubjectsIds
+				.get(tSubjectId) : new ArrayList<Long>();
 	}
 }
