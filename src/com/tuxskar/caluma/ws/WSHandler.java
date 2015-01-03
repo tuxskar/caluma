@@ -1,12 +1,16 @@
 package com.tuxskar.caluma.ws;
 
 import retrofit.Callback;
+import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Path;
 
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
 import com.tuxskar.caluma.ws.models.TeachingSubject;
+import com.tuxskar.caluma.ws.models.Token;
+import com.tuxskar.caluma.ws.models.User;
 import com.tuxskar.caluma.ws.models.WSInfo;
 
 public interface WSHandler {
@@ -22,4 +26,7 @@ public interface WSHandler {
 	@GET("/teachingsubject/{t_subject}/")
 	void getTSubject(@Path("t_subject") long t_subject, Callback<TeachingSubject> cb);
 
+	@POST("/api-token-auth/")
+	void getUserToken(@Body User user, Callback<Token> cb);
+	
 }

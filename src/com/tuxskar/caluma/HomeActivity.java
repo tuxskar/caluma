@@ -61,7 +61,7 @@ import com.tuxskar.caluma.ws.models.SimpleInfo;
 import com.tuxskar.caluma.ws.models.SubjectSimple;
 import com.tuxskar.caluma.ws.models.WSInfo;
 
-public class MainActivity extends Activity implements ActionBar.TabListener {
+public class HomeActivity extends Activity implements ActionBar.TabListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -109,8 +109,12 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		requestInterceptor = new RequestInterceptor() {
 			@Override
 			public void intercept(RequestFacade request) {
+				String token = sharedDB.getString(getString(R.string.userToken));
+				if (token == ""){
+					token = WSHandler.android_key;
+				}
 				request.addHeader("Authorization", " Token "
-						+ WSHandler.android_key);
+						+ token);
 				request.addHeader("WWW-Authenticate", " Token");
 			}
 		};
@@ -181,12 +185,12 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 		// Toast.makeText(context,
 		// "Created Calendar Event " + eventID + " CalId: " +
 		// Long.toString(calID), Toast.LENGTH_SHORT).show();
-		MainActivity.sharedDB.saveID(tSubjectId, eventId);
+		HomeActivity.sharedDB.saveID(tSubjectId, eventId);
 	}
 
 	public static int deleteEventId(Context context, Long tSubjectId) {
 		int deleted = 0;
-		for (Long eventId : MainActivity.sharedDB.getEventIds(tSubjectId)) {
+		for (Long eventId : HomeActivity.sharedDB.getEventIds(tSubjectId)) {
 //			selArgs.add(Long.toString(eventId));
 			deleted += context.getContentResolver().delete(Events.CONTENT_URI,
 					Events._ID + " = " + Long.toString(eventId), null);
@@ -196,7 +200,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 //		String[] selArray = {selArgs.get(0), selArgs.get(1), selArgs.get(2)};
 //		selArray = selArgs.toArray(selArray);
 
-		MainActivity.sharedDB.removeTSubject(tSubjectId);
+		HomeActivity.sharedDB.removeTSubject(tSubjectId);
 		return deleted;
 	}
 
@@ -325,7 +329,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 							SelectedCalendarId);
 					editor.commit();
 					Log.d("CalendarID selected:",
-							Long.toString(MainActivity.CalendarsFragment.SelectedCalendarId));
+							Long.toString(HomeActivity.CalendarsFragment.SelectedCalendarId));
 				}
 
 				@Override
@@ -501,7 +505,7 @@ public class MainActivity extends Activity implements ActionBar.TabListener {
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(WSHandler.SERVICE_ENDPOINT)
 					.setErrorHandler(new WSErrorHandler())
-					.setRequestInterceptor(MainActivity.requestInterceptor)
+					.setRequestInterceptor(HomeActivity.requestInterceptor)
 					.setConverter(new GsonConverter(gson)).build();
 
 			service = restAdapter.create(WSHandler.class);

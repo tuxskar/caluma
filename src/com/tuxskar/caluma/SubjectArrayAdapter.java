@@ -28,13 +28,11 @@ import com.tuxskar.caluma.ws.models.Timetable;
 
 public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 
-	private final List<SubjectSimple> subjects;
 	private final Activity context;
 
 	public SubjectArrayAdapter(Activity context, List<SubjectSimple> subjects) {
 		super(context, R.layout.subject_row, subjects);
 		this.context = context;
-		this.subjects = subjects;
 	}
 
 	static class ViewHolder {
@@ -65,7 +63,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 			holder.checkbox.setEnabled(true);
 			tSubjectId = element.getT_subject()[0];
 			boolean idFound = false;
-			if (MainActivity.sharedDB.savedTSubject(tSubjectId)) {
+			if (HomeActivity.sharedDB.savedTSubject(tSubjectId)) {
 				idFound = true;
 			}
 			holder.checkbox.setChecked(idFound);
@@ -96,7 +94,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 		// fits
 		// better choosing level and course
 		if (element.getT_subject().length > 0) {
-			MainActivity.SubjectsSearcherFragment.service.getTSubject(
+			HomeActivity.SubjectsSearcherFragment.service.getTSubject(
 					element.getT_subject()[0], new Callback<TeachingSubject>() {
 						@Override
 						public void failure(RetrofitError arg0) {
@@ -153,7 +151,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 								String RRULE = "FREQ=WEEKLY;BYDAY="
 										+ rrule[tmDow - 1] + ";UNTIL=" + Until;
 
-								MainActivity.addEventCorrect(
+								HomeActivity.addEventCorrect(
 										element.getTitle(),
 										startDate,
 										endDate,
@@ -184,7 +182,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 												.parseInt(endTime[1]), Integer
 												.parseInt(endTime[2]));
 
-								MainActivity.addEventCorrect(
+								HomeActivity.addEventCorrect(
 										ex.getTitle(),
 										startDate,
 										endDate,
@@ -219,7 +217,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 		// TODO future: not select just the first tSubject but all the tSubjects
 		// associated to the subject
 		if (element.getT_subject().length > 0) {
-			MainActivity.deleteEventId(context, element.getT_subject()[0]);
+			HomeActivity.deleteEventId(context, element.getT_subject()[0]);
 			Toast.makeText(context,
 					"Se ha eliminado la asignatura " + element.getTitle(),
 					Toast.LENGTH_LONG).show();

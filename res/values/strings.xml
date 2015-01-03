@@ -10,5 +10,11 @@
     <string name="selectedCalendarId">1</string>
     <string name="calendarPreferences">calpref</string>
     <string name="TSUBJECTIDS">TSubjectIDs</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="hello_login">Caluny UMA</string>
+    <string name="username">Username:</string>
+    <string name="password">Password:</string>
+    <string name="Login">Login</string>
+    <string name="userToken">USERTOKEN</string>
 
 </resources>
