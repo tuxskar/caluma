@@ -6,16 +6,17 @@ import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
 
+import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
 import com.tuxskar.caluma.ws.models.TeachingSubject;
-import com.tuxskar.caluma.ws.models.Token;
-import com.tuxskar.caluma.ws.models.User;
 import com.tuxskar.caluma.ws.models.WSInfo;
+import com.tuxskar.caluma.ws.models.users.LoginUser;
+import com.tuxskar.caluma.ws.models.users.User;
 
 public interface WSHandler {
-	String SERVICE_ENDPOINT = "http://caluny.noip.me";
-	static String android_key = "43bc34dc5b194f1d3bbf91e7342488b479fb681f";
+//	String SERVICE_ENDPOINT = "http://caluny.noip.me";
+	String SERVICE_ENDPOINT = "http://192.168.0.204:8888/";
 
 	@GET("/schools")
 	void listSchoolCB(Callback<WSInfo<School>> cb);
@@ -26,7 +27,10 @@ public interface WSHandler {
 	@GET("/teachingsubject/{t_subject}/")
 	void getTSubject(@Path("t_subject") long t_subject, Callback<TeachingSubject> cb);
 
-	@POST("/api-token-auth/")
-	void getUserToken(@Body User user, Callback<Token> cb);
+	@POST("/caluny/users/api-token-auth/")
+	void getUserToken(@Body LoginUser user, Callback<LoggedIn> cb);
+	
+	@POST("/caluny/users/create_user/")
+	void createNewUser(@Body User user, Callback<LoggedIn> cb);
 	
 }

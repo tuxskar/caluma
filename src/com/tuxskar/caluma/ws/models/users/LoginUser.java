@@ -1,9 +1,9 @@
-package com.tuxskar.caluma.ws.models;
+package com.tuxskar.caluma.ws.models.users;
 
-public class User {
+public class LoginUser {
 	String username, password;
 
-	public User(String username, String password) {
+	public LoginUser(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}

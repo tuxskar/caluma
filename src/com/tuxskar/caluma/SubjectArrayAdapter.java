@@ -43,31 +43,20 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView = convertView;
-//		SubjectSimple element = subjects.get(position);
 		if (rowView == null) {
 			LayoutInflater inflator = context.getLayoutInflater();
 			rowView = inflator.inflate(R.layout.subject_row, null);
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.text = (TextView) rowView.findViewById(R.id.label);
 			viewHolder.checkbox = (CheckBox) rowView.findViewById(R.id.check);
+			viewHolder.checkbox.setTag(getItem(position));
 			rowView.setTag(viewHolder);
 		}
 		ViewHolder holder = (ViewHolder) rowView.getTag();
 		SubjectSimple element = getItem(position);
-		holder.checkbox.setTag(element);
 		holder.text.setText(element.getTitle());
-		long tSubjectId = 0;
-		if (element.getT_subject().length == 0) {
-			holder.checkbox.setEnabled(false);
-		} else {
-			holder.checkbox.setEnabled(true);
-			tSubjectId = element.getT_subject()[0];
-			boolean idFound = false;
-			if (HomeActivity.sharedDB.savedTSubject(tSubjectId)) {
-				idFound = true;
-			}
-			holder.checkbox.setChecked(idFound);
-		}
+		boolean ongoing = element.getT_subject().length > 0;
+		holder.checkbox.setEnabled(ongoing);
 		holder.checkbox
 				.setOnClickListener(new CompoundButton.OnClickListener() {
 					@Override
@@ -94,7 +83,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 		// fits
 		// better choosing level and course
 		if (element.getT_subject().length > 0) {
-			HomeActivity.SubjectsSearcherFragment.service.getTSubject(
+			StudentHomeActivity.SubjectsSearcherFragment.service.getTSubject(
 					element.getT_subject()[0], new Callback<TeachingSubject>() {
 						@Override
 						public void failure(RetrofitError arg0) {
@@ -151,7 +140,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 								String RRULE = "FREQ=WEEKLY;BYDAY="
 										+ rrule[tmDow - 1] + ";UNTIL=" + Until;
 
-								HomeActivity.addEventCorrect(
+								StudentHomeActivity.addEventCorrect(
 										element.getTitle(),
 										startDate,
 										endDate,
@@ -182,7 +171,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 												.parseInt(endTime[1]), Integer
 												.parseInt(endTime[2]));
 
-								HomeActivity.addEventCorrect(
+								StudentHomeActivity.addEventCorrect(
 										ex.getTitle(),
 										startDate,
 										endDate,
@@ -217,7 +206,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 		// TODO future: not select just the first tSubject but all the tSubjects
 		// associated to the subject
 		if (element.getT_subject().length > 0) {
-			HomeActivity.deleteEventId(context, element.getT_subject()[0]);
+			StudentHomeActivity.deleteEventId(context, element.getT_subject()[0]);
 			Toast.makeText(context,
 					"Se ha eliminado la asignatura " + element.getTitle(),
 					Toast.LENGTH_LONG).show();
