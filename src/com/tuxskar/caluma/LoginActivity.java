@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.tuxskar.caluma.gcm.RegisteringGcmActivity;
 import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.users.NewUserActivity;
 import com.tuxskar.caluma.ws.WSErrorHandler;
@@ -84,22 +85,30 @@ public class LoginActivity extends Activity {
 		sharedDB.putString(getString(R.string.userToken), response.getToken());
 		sharedDB.putString(getString(R.string.userRole), response.getRole());
 		sharedDB.putBoolean("userLoggedInState", true);
-		goToHomeActivity();
+		goToRegisteringActivity();
 	}
 	
-	private void goToHomeActivity(){
+	public void goToHomeActivity(){
 		Intent intent = new Intent(this, sharedDB.getString(
 				getString(R.string.userRole)).compareTo("TEAC") == 0 ? TeacherHomeActivity.class : StudentHomeActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 		finish();
 	}
+	
+	public void goToRegisteringActivity(){
+		Intent intent = new Intent(this, RegisteringGcmActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+		finish();
+//		RegisteringGdmActivity
+	}
 
 	@Override
 	protected void onResume() {
 		boolean isUserLoggedIn = sharedDB.getBoolean("userLoggedInState");
 		if (isUserLoggedIn) {
-			goToHomeActivity();
+			goToRegisteringActivity();
 		}
 		super.onResume();
 	}

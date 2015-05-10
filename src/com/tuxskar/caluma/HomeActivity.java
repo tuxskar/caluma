@@ -535,7 +535,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
 						Log.e("failure school", arg0.getCause().toString());
 					} else {
 						Toast.makeText(context,
-								"Fail getSchool no Cause" + arg0.toString(),
+								"Fail getSchool Cause" + arg0.toString(),
 								Toast.LENGTH_LONG).show();
 						Log.e("failure school", arg0.toString());
 

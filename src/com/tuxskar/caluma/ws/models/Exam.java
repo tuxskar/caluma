@@ -1,7 +1,5 @@
 package com.tuxskar.caluma.ws.models;
 
-import java.util.Date;
-
 
 public class Exam extends Timetable{
 	private String title;

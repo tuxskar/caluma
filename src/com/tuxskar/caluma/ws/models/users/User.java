@@ -5,7 +5,8 @@ import com.tuxskar.caluma.ws.models.users.User;
 public class User extends LoginUser {
 	String name, last_name, email;
 	static String role = null;
-	
+	String registration_id;
+
 	public User(String username, String password, String name, String last_name, String email) {
 		super(username, password);
 		this.name = name;
@@ -36,6 +37,13 @@ public class User extends LoginUser {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String getRegistration_id() {
+		return registration_id;
+	}
 
+	public void setRegistration_id(String registration_id) {
+		this.registration_id = registration_id;
+	}
 
 }
