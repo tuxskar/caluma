@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -65,12 +66,12 @@ public class RegisteringGcmActivity extends Activity {
 	 * Substitute you own sender ID here. This is the project number you got
 	 * from the API Console, as described in "Getting Started."
 	 */
-	String SENDER_ID = "Your sender_id";
+	String SENDER_ID = "";
 
 	/**
 	 * Tag used on log messages.
 	 */
-	static final String TAG = "GCM Demo";
+	static final String TAG = "Caluma app";
 
 	GoogleCloudMessaging gcm;
 	AtomicInteger msgId = new AtomicInteger();
@@ -83,7 +84,7 @@ public class RegisteringGcmActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.registering);
-
+		this.SENDER_ID = getString(R.string.SENDER_ID);
 		context = getApplicationContext();
 		sharedDB = new SharedDB(getApplicationContext());
 		requestInterceptor = new RequestInterceptor() {
@@ -224,7 +225,7 @@ public class RegisteringGcmActivity extends Activity {
 
 			@Override
 			protected void onPostExecute(String msg) {
-				Log.e("Error on post execute getting registration ID", msg);
+				Log.e("Error on post regID", msg);
 			}
 		}.execute(null, null, null);
 	}
@@ -254,12 +255,9 @@ public class RegisteringGcmActivity extends Activity {
 				@Override
 				protected void onPostExecute(String msg) {
 					//mDisplay.append(msg + "\n");
-					Log.e("Error on post execute getting registration ID", msg);
+					Log.e("Error on post regID", msg);
 				}
 			}.execute(null, null, null);
-		//} else if (view == findViewById(R.id.clear)) {
-		//	mDisplay.setText("");
-		//}
 	}
 
 	@Override
@@ -302,7 +300,7 @@ public class RegisteringGcmActivity extends Activity {
 	private void sendRegistrationIdToBackend() {
 		// Your implementation here.
 		String registration_id = getRegistrationId(context);
-		Log.i("Registration id to send:", registration_id);
+		Log.i("RegId to send:", registration_id);
 		TelephonyManager telephonyManager = (TelephonyManager) context
 				.getSystemService(Context.TELEPHONY_SERVICE);
 		String device_id = telephonyManager.getDeviceId();

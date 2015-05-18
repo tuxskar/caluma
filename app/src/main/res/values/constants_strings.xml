@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="SENDER_ID">Your sender id</string>
+    <string name="GCM_TAG">Caluma app</string>
+    <string name="TSUBJECTIDS">TSubjectIDs</string>
+    <string name="userToken">USERTOKEN</string>
+    <string name="userRole">USERROLE</string>
+    <string name="gcmActive">CALUMA-GCM-ACTIVE</string>
+    <string name="gcmCreated">CALUMA-GCM-CREATED</string>
+
+</resources>
