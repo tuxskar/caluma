@@ -3,11 +3,11 @@ package com.tuxskar.caluma.gcm;
 /**
  * Created by tuxskar on 17/05/15.
  */
-public class MessageToSubject {
+public class SentMessageToSubject {
     String receiver;
     String message;
 
-    public MessageToSubject(String receiver, String message) {
+    public SentMessageToSubject(String receiver, String message) {
         this.receiver = receiver;
         this.message = message;
     }

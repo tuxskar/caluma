@@ -1,7 +1,7 @@
 package com.tuxskar.caluma.ws;
 
 import com.tuxskar.caluma.gcm.SentMessageInfo;
-import com.tuxskar.caluma.gcm.MessageToSubject;
+import com.tuxskar.caluma.gcm.SentMessageToSubject;
 import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
@@ -12,6 +12,8 @@ import com.tuxskar.caluma.ws.models.users.DeviceInfo;
 import com.tuxskar.caluma.ws.models.users.LoginUser;
 import com.tuxskar.caluma.ws.models.users.User;
 
+import java.util.Date;
+
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
@@ -19,27 +21,33 @@ import retrofit.http.POST;
 import retrofit.http.Path;
 
 public interface WSHandler {
-//	String SERVICE_ENDPOINT = "http://caluny.noip.me";
-	String SERVICE_ENDPOINT = "http://192.168.0.196:8888/";
+    //	String SERVICE_ENDPOINT = "http://caluny.noip.me";
+    String SERVICE_ENDPOINT = "http://192.168.0.196:8888/";
 
-	@GET("/schools")
-	void listSchoolCB(Callback<WSInfo<School>> cb);
+    @GET("/schools")
+    void listSchoolCB(Callback<WSInfo<School>> cb);
 
-	@GET("/degree/{degree}/")
-	void getDegree(@Path("degree") long degree, Callback<Degree> cb);
-	
-	@GET("/teachingsubject/{t_subject}/")
-	void getTSubject(@Path("t_subject") long t_subject, Callback<TeachingSubject> cb);
+    @GET("/degree/{degree}/")
+    void getDegree(@Path("degree") long degree, Callback<Degree> cb);
 
-	@POST("/caluny/users/api-token-auth/")
-	void getUserToken(@Body LoginUser user, Callback<LoggedIn> cb);
-	
-	@POST("/caluny/users/create_user/")
-	void createNewUser(@Body User user, Callback<LoggedIn> cb);
-	
-	@POST("/caluny/users/register_gcm_user/")
-	void registerGcmDevice(@Body CalumaDevice device, Callback<DeviceInfo> cb);
+    @GET("/teachingsubject/{t_subject}/")
+    void getTSubject(@Path("t_subject") long t_subject, Callback<TeachingSubject> cb);
 
-	@POST("/caluny/messages/send_subject_message/")
-	void sendTeacherMessage(@Body MessageToSubject mts, Callback<SentMessageInfo> cb);
+    @POST("/caluny/users/api-token-auth/")
+    void getUserToken(@Body LoginUser user, Callback<LoggedIn> cb);
+
+    @POST("/caluny/users/create_user/")
+    void createNewUser(@Body User user, Callback<LoggedIn> cb);
+
+    @POST("/caluny/users/register_gcm_user/")
+    void registerGcmDevice(@Body CalumaDevice device, Callback<DeviceInfo> cb);
+
+    @POST("/caluny/chat/send_subject_message/")
+    void sendTeacherMessage(@Body SentMessageToSubject mts, Callback<SentMessageInfo> cb);
+
+    @POST("/caluny/chat/messages/?receiver={t_subject}")
+    void getAllTeachingSubjectMessages(@Path("t_subject") long t_subject, Callback<WSInfo<MessageToSubject>> cb);
+
+    @POST("/caluny/chat/messages/?changed_from={date_from}")
+    void getTeachingSubjectMessagesFrom(@Path("date_from") Date date_from, Callback<WSInfo<MessageToSubject>> cb);
 }
