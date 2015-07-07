@@ -19,10 +19,11 @@ import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
+import retrofit.http.Query;
 
 public interface WSHandler {
     //	String SERVICE_ENDPOINT = "http://caluny.noip.me";
-    String SERVICE_ENDPOINT = "http://192.168.0.196:8888/";
+    String SERVICE_ENDPOINT = "http://192.168.1.132:8888/";
 
     @GET("/schools")
     void listSchoolCB(Callback<WSInfo<School>> cb);
@@ -45,9 +46,9 @@ public interface WSHandler {
     @POST("/caluny/chat/send_subject_message/")
     void sendTeacherMessage(@Body SentMessageToSubject mts, Callback<SentMessageInfo> cb);
 
-    @POST("/caluny/chat/messages/?receiver={t_subject}")
-    void getAllTeachingSubjectMessages(@Path("t_subject") long t_subject, Callback<WSInfo<MessageToSubject>> cb);
+    @GET("/caluny/chat/messages/")
+    void getAllTeachingSubjectMessages(@Query("receiver") long t_subject, Callback<WSInfo<MessageToSubject>> cb);
 
-    @POST("/caluny/chat/messages/?changed_from={date_from}")
-    void getTeachingSubjectMessagesFrom(@Path("date_from") Date date_from, Callback<WSInfo<MessageToSubject>> cb);
+    @GET("/caluny/chat/messages/")
+    void getTeachingSubjectMessagesFrom(@Query("date_from") Date date_from, Callback<WSInfo<MessageToSubject>> cb);
 }
