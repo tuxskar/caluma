@@ -5,6 +5,7 @@ import com.tuxskar.caluma.gcm.SentMessageToSubject;
 import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
+import com.tuxskar.caluma.ws.models.SubjectsSubscribed;
 import com.tuxskar.caluma.ws.models.TeachingSubject;
 import com.tuxskar.caluma.ws.models.WSInfo;
 import com.tuxskar.caluma.ws.models.users.CalumaDevice;
@@ -42,6 +43,9 @@ public interface WSHandler {
 
     @POST("/caluny/users/register_gcm_user/")
     void registerGcmDevice(@Body CalumaDevice device, Callback<DeviceInfo> cb);
+
+    @GET("/caluny/users/subject_subscribed/")
+    void getSubjectSubscribed(Callback<WSInfo<SubjectsSubscribed>> cb);
 
     @POST("/caluny/chat/send_subject_message/")
     void sendTeacherMessage(@Body SentMessageToSubject mts, Callback<SentMessageInfo> cb);
