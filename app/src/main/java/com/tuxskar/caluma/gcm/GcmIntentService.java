@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2013 The Android Open Source Project
  *
@@ -44,6 +43,7 @@ public class GcmIntentService extends IntentService {
     public GcmIntentService() {
         super("GcmIntentService");
     }
+
     public static final String TAG = "GCM Demo";
 
     @Override
@@ -64,7 +64,7 @@ public class GcmIntentService extends IntentService {
                 sendNotification("Send error: " + extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
                 sendNotification("Deleted messages on server: " + extras.toString());
-            // If it's a regular GCM message, do some work.
+                // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // This loop represents the service doing some work.
                 for (int i = 0; i < 5; i++) {
@@ -99,11 +99,11 @@ public class GcmIntentService extends IntentService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-        .setSmallIcon(R.drawable.caluma_launcher)
-        .setContentTitle("New notification from caluma")
-        .setStyle(new NotificationCompat.BigTextStyle()
-        .bigText(msg))
-        .setContentText(msg);
+                        .setSmallIcon(R.drawable.caluma_launcher)
+                        .setContentTitle("New notification from caluma")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(msg))
+                        .setContentText(msg);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

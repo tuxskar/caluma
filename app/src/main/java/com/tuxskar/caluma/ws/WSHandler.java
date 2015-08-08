@@ -23,7 +23,7 @@ import retrofit.http.Query;
 
 public interface WSHandler {
     //	String SERVICE_ENDPOINT = "http://caluny.noip.me";
-    String SERVICE_ENDPOINT = "http://192.168.1.132:8888/";
+    String SERVICE_ENDPOINT = "http://192.168.1.130:8888/";
 
     @GET("/schools")
     void listSchoolCB(Callback<WSInfo<School>> cb);

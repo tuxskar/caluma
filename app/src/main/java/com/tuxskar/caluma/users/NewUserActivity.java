@@ -10,33 +10,33 @@ import com.tuxskar.caluma.R;
 
 public class NewUserActivity extends Activity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.new_user_type);
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		// getMenuInflater().inflate(R.menu.login, menu);
-		return true;
-	}
-	
-	public void newStudent(View view) {
-		Intent intent = new Intent(this, NewStudentActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
-		finish();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.new_user_type);
+    }
 
-	}
-	
-	public void newTeacher(View view) {
-		Intent intent = new Intent(this, NewTeacherActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
-		finish();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        // getMenuInflater().inflate(R.menu.login, menu);
+        return true;
+    }
 
-	}
+    public void newStudent(View view) {
+        Intent intent = new Intent(this, NewStudentActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+
+    }
+
+    public void newTeacher(View view) {
+        Intent intent = new Intent(this, NewTeacherActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+
+    }
 
 }

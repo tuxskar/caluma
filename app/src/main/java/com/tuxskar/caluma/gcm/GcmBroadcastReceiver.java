@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.tuxskar.caluma.gcm;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
