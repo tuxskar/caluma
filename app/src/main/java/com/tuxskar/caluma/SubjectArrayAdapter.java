@@ -84,7 +84,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
         // fits
         // better choosing level and course
         if (element.getT_subject().length > 0) {
-            StudentHomeActivity.SubjectsSearcherFragment.service.getTSubject(
+            LoginActivity.getUserService().getTSubject(
                     element.getT_subject()[0], new Callback<TeachingSubject>() {
                         @Override
                         public void failure(RetrofitError arg0) {

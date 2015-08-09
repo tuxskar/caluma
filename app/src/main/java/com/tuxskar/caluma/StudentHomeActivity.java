@@ -33,10 +33,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.tuxskar.caluma.ws.WSErrorHandler;
-import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
 import com.tuxskar.caluma.ws.models.SimpleInfo;
@@ -55,11 +51,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import retrofit.Callback;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.converter.GsonConverter;
 
 public class StudentHomeActivity extends Activity implements ActionBar.TabListener {
 
@@ -71,7 +64,6 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
      * {@link android.support.v13.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
-    static RequestInterceptor requestInterceptor;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -88,6 +80,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
         sharedDB = new SharedDB(this.getApplicationContext());
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
+        assert actionBar != null;
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -105,16 +98,6 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                     .setText(mSectionsPagerAdapter.getPageTitle(i))
                     .setTabListener(this));
         }
-
-        requestInterceptor = new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                String token = sharedDB.getString(getString(R.string.userToken));
-                request.addHeader("Authorization", " Token "
-                        + token);
-                request.addHeader("WWW-Authenticate", " Token");
-            }
-        };
     }
 
     @Override
@@ -312,7 +295,6 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                             .getSharedPreferences(context
                                             .getString(R.string.calendarPreferences),
                                     Context.MODE_PRIVATE);
-                    ;
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putLong(getString(R.string.selectedCalendarId),
                             SelectedCalendarId);
@@ -477,7 +459,6 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
          * The fragment argument representing the section number for this
          * fragment.
          */
-        static WSHandler service;
         View rootV;
         private WSInfo<School> wsSchool;
         private Degree selectedDegree;
@@ -490,16 +471,6 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
          */
         public static SubjectsSearcherFragment newInstance(int sectionNumber) {
             SubjectsSearcherFragment fragment = new SubjectsSearcherFragment();
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-
-            RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setEndpoint(WSHandler.SERVICE_ENDPOINT)
-                    .setErrorHandler(new WSErrorHandler())
-                    .setRequestInterceptor(StudentHomeActivity.requestInterceptor)
-                    .setConverter(new GsonConverter(gson)).build();
-
-            service = restAdapter.create(WSHandler.class);
-
             return fragment;
         }
 
@@ -517,7 +488,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
         }
 
         public void getSchools() {
-            service.listSchoolCB(new Callback<WSInfo<School>>() {
+            LoginActivity.getUserService().listSchoolCB(new Callback<WSInfo<School>>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     if (arg0.getCause() != null) {
@@ -598,7 +569,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
         }
 
         public void getSubjects(long degreeId) {
-            service.getDegree(degreeId, new Callback<Degree>() {
+            LoginActivity.getUserService().getDegree(degreeId, new Callback<Degree>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     Log.d("failure degree", arg0.getResponse().toString());

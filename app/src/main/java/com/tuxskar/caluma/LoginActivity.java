@@ -1,6 +1,7 @@
 package com.tuxskar.caluma;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.tuxskar.caluma.gcm.RegisteringGcmActivity;
 import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.users.NewUserActivity;
@@ -16,14 +19,19 @@ import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.users.LoginUser;
 
 import retrofit.Callback;
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.converter.GsonConverter;
 
 public class LoginActivity extends Activity {
     private EditText username = null;
     private EditText password = null;
     static SharedDB sharedDB;
+    static WSHandler service;
+    static RequestInterceptor requestInterceptor;
+    static private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +39,29 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
         username = (EditText) findViewById(R.id.editUsername);
         password = (EditText) findViewById(R.id.editPassword);
-//		username.setText("demo");
-//		password.setText("demo");
         sharedDB = new SharedDB(this.getApplicationContext());
+        context = getApplicationContext();
+    }
+
+    static public WSHandler getUserService() {
+        if (service == null) {
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            final String token = sharedDB.getString(context.getString(R.string.userToken));
+            requestInterceptor = new RequestInterceptor() {
+                @Override
+                public void intercept(RequestFacade request) {
+                    request.addHeader("Authorization", " Token " + token);
+                    request.addHeader("WWW-Authenticate", " Token");
+                }
+            };
+            RestAdapter restAdapter = new RestAdapter.Builder()
+                    .setEndpoint(WSHandler.SERVICE_ENDPOINT)
+                    .setErrorHandler(new WSErrorHandler())
+                    .setRequestInterceptor(requestInterceptor)
+                    .setConverter(new GsonConverter(gson)).build();
+            service = restAdapter.create(WSHandler.class);
+        }
+        return service;
     }
 
     @Override
@@ -86,6 +114,7 @@ public class LoginActivity extends Activity {
         sharedDB.putString(getString(R.string.userToken), response.getToken());
         sharedDB.putString(getString(R.string.userRole), response.getRole());
         sharedDB.putBoolean("userLoggedInState", true);
+        getUserService();
         goToRegisteringActivity();
     }
 

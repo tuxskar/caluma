@@ -34,10 +34,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.tuxskar.caluma.ws.WSErrorHandler;
-import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
 import com.tuxskar.caluma.ws.models.SimpleInfo;
@@ -57,10 +53,8 @@ import java.util.TimeZone;
 
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.converter.GsonConverter;
 
 public class HomeActivity extends Activity implements ActionBar.TabListener {
 
@@ -486,7 +480,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
          * The fragment argument representing the section number for this
          * fragment.
          */
-        static WSHandler service;
         View rootV;
         private WSInfo<School> wsSchool;
         private Degree selectedDegree;
@@ -499,16 +492,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
          */
         public static SubjectsSearcherFragment newInstance(int sectionNumber) {
             SubjectsSearcherFragment fragment = new SubjectsSearcherFragment();
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-
-            RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setEndpoint(WSHandler.SERVICE_ENDPOINT)
-                    .setErrorHandler(new WSErrorHandler())
-                    .setRequestInterceptor(HomeActivity.requestInterceptor)
-                    .setConverter(new GsonConverter(gson)).build();
-
-            service = restAdapter.create(WSHandler.class);
-
             return fragment;
         }
 
@@ -526,7 +509,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
         }
 
         public void getSchools() {
-            service.listSchoolCB(new Callback<WSInfo<School>>() {
+            LoginActivity.getUserService().listSchoolCB(new Callback<WSInfo<School>>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     if (arg0.getCause() != null) {
@@ -607,7 +590,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
         }
 
         public void getSubjects(long degreeId) {
-            service.getDegree(degreeId, new Callback<Degree>() {
+            LoginActivity.getUserService().getDegree(degreeId, new Callback<Degree>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     Log.d("failure degree", arg0.getResponse().toString());
