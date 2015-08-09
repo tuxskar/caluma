@@ -46,6 +46,9 @@ public class LoginActivity extends Activity {
     static public WSHandler getUserService() {
         if (service == null) {
             Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            if (sharedDB == null) {
+                sharedDB = new SharedDB(context);
+            }
             final String token = sharedDB.getString(context.getString(R.string.userToken));
             requestInterceptor = new RequestInterceptor() {
                 @Override

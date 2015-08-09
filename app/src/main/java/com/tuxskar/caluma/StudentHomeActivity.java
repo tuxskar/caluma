@@ -71,17 +71,29 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
 
     static SharedDB sharedDB;
     static Map<Long, ArrayList<Long>> tsubjectsIds;
+    private String selectedMessages = null;
+    ActionBar actionBar = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         sharedDB = new SharedDB(this.getApplicationContext());
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        actionBar = getActionBar();
         assert actionBar != null;
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //setting the messages subject selected via gcm
+        boolean subjectMessage = getIntent().getExtras() != null && getIntent().getExtras().getString("SUBJECT_ID") != null;
+        if (subjectMessage) {
+            String subject_id = getIntent().getExtras().getString("SUBJECT_ID");
+            selectedMessages = subject_id;
+        }
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -97,6 +109,10 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
             actionBar.addTab(actionBar.newTab()
                     .setText(mSectionsPagerAdapter.getPageTitle(i))
                     .setTabListener(this));
+        }
+        if (subjectMessage) {
+            mSectionsPagerAdapter.notifyDataSetChanged();
+            actionBar.setSelectedNavigationItem(actionBar.getTabCount() - 1);
         }
     }
 
@@ -196,7 +212,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                 case 1:
                     return SubjectsSearcherFragment.newInstance(position);
                 default:
-                    return TeacherHomeActivity.MessagesTab.newInstance(position + 1, false);
+                    return new TeacherHomeActivity.MessagesTab().newInstance(position + 1, false, selectedMessages);
             }
         }
 

@@ -25,27 +25,27 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.tuxskar.caluma.LoginActivity;
 import com.tuxskar.caluma.R;
 import com.tuxskar.caluma.SharedDB;
 import com.tuxskar.caluma.StudentHomeActivity;
 import com.tuxskar.caluma.TeacherHomeActivity;
-import com.tuxskar.caluma.ws.WSErrorHandler;
-import com.tuxskar.caluma.ws.WSHandler;
 import com.tuxskar.caluma.ws.models.users.CalumaDevice;
 import com.tuxskar.caluma.ws.models.users.DeviceInfo;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
@@ -105,7 +105,11 @@ public class RegisteringGcmActivity extends Activity {
             if (regid.isEmpty() || sharedDB.getBoolean(getString(R.string.gcmActive)) == false) {
                 registerInBackground();
             } else {
-                goToHomeActivity();
+                String message = "";
+                if (getIntent() != null && getIntent().getBundleExtra("message") != null) {
+                    message = getIntent().getBundleExtra("message").getString("message");
+                }
+                goToHomeActivity(message);
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
@@ -227,36 +231,6 @@ public class RegisteringGcmActivity extends Activity {
         }.execute(null, null, null);
     }
 
-    // Send an upstream message.
-    public void onClick(final View view) {
-
-        //if (view == findViewById(R.id.send)) {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    Bundle data = new Bundle();
-                    data.putString("my_message", "Hello World");
-                    data.putString("my_action",
-                            "com.google.android.gcm.demo.app.ECHO_NOW");
-                    String id = Integer.toString(msgId.incrementAndGet());
-                    gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
-                    msg = "Sent message";
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-                }
-                return msg;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-                //mDisplay.append(msg + "\n");
-                Log.e("Error on post regID", msg);
-            }
-        }.execute(null, null, null);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -301,15 +275,7 @@ public class RegisteringGcmActivity extends Activity {
         TelephonyManager telephonyManager = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
         String device_id = telephonyManager.getDeviceId();
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(WSHandler.SERVICE_ENDPOINT)
-                .setErrorHandler(new WSErrorHandler())
-                .setRequestInterceptor(
-                        RegisteringGcmActivity.requestInterceptor).build();
-
-
-        WSHandler service = restAdapter.create(WSHandler.class);
-        service.registerGcmDevice(new CalumaDevice(registration_id, device_id),
+        LoginActivity.getUserService().registerGcmDevice(new CalumaDevice(registration_id, device_id),
                 new Callback<DeviceInfo>() {
                     @Override
                     public void failure(RetrofitError arg0) {
@@ -325,18 +291,28 @@ public class RegisteringGcmActivity extends Activity {
                                 Toast.LENGTH_SHORT).show();
                         sharedDB.putBoolean(getString(R.string.gcmActive), arg0.getActive());
                         sharedDB.putBoolean(getString(R.string.gcmCreated), arg0.getCreated());
-                        goToHomeActivity();
+                        goToHomeActivity(null);
                     }
                 });
     }
 
-    public void goToHomeActivity() {
+    public void goToHomeActivity(String message) {
         SharedDB sharedDB = new SharedDB(this.getApplicationContext());
         Intent intent = new Intent(this,
                 sharedDB.getString(getString(R.string.userRole)).compareTo(
                         "TEAC") == 0 ? TeacherHomeActivity.class
                         : StudentHomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (message != null) {
+            String subject_id = null;
+            try {
+                JSONObject obj = new JSONObject(message);
+                subject_id = obj.getString("subject_id");
+            } catch (JSONException e) {
+                Log.e("Fail getting message", e.toString());
+            }
+            intent.putExtra("SUBJECT_ID", subject_id);
+        }
         startActivity(intent);
         finish();
     }

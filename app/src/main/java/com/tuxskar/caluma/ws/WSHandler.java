@@ -1,7 +1,7 @@
 package com.tuxskar.caluma.ws;
 
-import com.tuxskar.caluma.gcm.SentMessageInfo;
-import com.tuxskar.caluma.gcm.SentMessageToSubject;
+import com.tuxskar.caluma.gcm.models.SentMessageInfo;
+import com.tuxskar.caluma.gcm.models.SentMessageToSubject;
 import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;

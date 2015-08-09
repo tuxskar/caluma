@@ -1,4 +1,4 @@
-package com.tuxskar.caluma.gcm;
+package com.tuxskar.caluma.gcm.models;
 
 /**
  * Created by tuxskar on 17/05/15.
