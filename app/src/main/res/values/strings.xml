@@ -6,7 +6,7 @@
     <string name="title_section2">Mensajes</string>
     <string name="title_section1">Asignaturas</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Ajustes</string>
+    <string name="action_settings">Settings</string>
     <string name="selectedCalendarId">1</string>
     <string name="calendarPreferences">calpref</string>
     <string name="title_login_activity">LoginActivity</string>
@@ -19,6 +19,7 @@
     <string name="email">Email</string>
     <string name="dept">Departament</string>
     <string name="description">Description</string>
+    <string name="calendar_title">Calendario</string>
 
     <string name="create_teacher">Create Teacher</string>
     <string name="create_student">Create Student</string>
@@ -27,5 +28,9 @@
     <string name="new_user">New User</string>
     <string name="clear">Clear</string>
     <string name="send">Send</string>
+    <string name="write_teacher_message_label">Write a message for the students.</string>
+    <string name="send_label">Send</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="logout_label">Log out</string>
 
 </resources>

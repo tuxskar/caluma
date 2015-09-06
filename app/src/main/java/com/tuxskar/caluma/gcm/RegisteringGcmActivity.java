@@ -16,6 +16,7 @@
 package com.tuxskar.caluma.gcm;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -56,27 +57,38 @@ public class RegisteringGcmActivity extends Activity {
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
+    /**
+     * Tag used on log messages.
+     */
+    static final String TAG = "Caluma app";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private static RequestInterceptor requestInterceptor;
     static SharedDB sharedDB;
-
+    private static RequestInterceptor requestInterceptor;
     /**
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
      */
     String SENDER_ID = "";
-
-    /**
-     * Tag used on log messages.
-     */
-    static final String TAG = "Caluma app";
-
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     Context context;
 
     String regid;
+
+    /**
+     * @return Application's version code from the {@code PackageManager}.
+     */
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,7 +96,7 @@ public class RegisteringGcmActivity extends Activity {
 
         setContentView(R.layout.registering);
         this.SENDER_ID = getString(R.string.SENDER_ID);
-        context = getApplicationContext();
+        context = this.getBaseContext();
         sharedDB = new SharedDB(getApplicationContext());
         requestInterceptor = new RequestInterceptor() {
             @Override
@@ -102,7 +114,7 @@ public class RegisteringGcmActivity extends Activity {
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
 
-            if (regid.isEmpty() || sharedDB.getBoolean(getString(R.string.gcmActive)) == false) {
+            if (regid.isEmpty() || !sharedDB.getBoolean(getString(R.string.gcmActive))) {
                 registerInBackground();
             } else {
                 String message = "";
@@ -158,7 +170,7 @@ public class RegisteringGcmActivity extends Activity {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_REG_ID, regId);
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -200,7 +212,7 @@ public class RegisteringGcmActivity extends Activity {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
-                String msg = "";
+                String msg;
                 try {
                     if (gcm == null) {
                         gcm = GoogleCloudMessaging.getInstance(context);
@@ -208,13 +220,10 @@ public class RegisteringGcmActivity extends Activity {
                     regid = gcm.register(SENDER_ID);
                     msg = "Device registered, registration ID=" + regid;
 
-                    // You should send the registration ID to your server over
-                    // HTTP, so it
-                    // can use GCM/HTTP or CCS to send messages to your app.
-                    sendRegistrationIdToBackend();
-
                     // Persist the regID - no need to register again.
                     storeRegistrationId(context, regid);
+
+                    sendRegistrationIdToBackend(regid);
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                     // If there is an error, don't just keep trying to register.
@@ -237,20 +246,6 @@ public class RegisteringGcmActivity extends Activity {
     }
 
     /**
-     * @return Application's version code from the {@code PackageManager}.
-     */
-    private static int getAppVersion(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (NameNotFoundException e) {
-            // should never happen
-            throw new RuntimeException("Could not get package name: " + e);
-        }
-    }
-
-    /**
      * @return Application's {@code SharedPreferences}.
      */
     private SharedPreferences getGcmPreferences(Context context) {
@@ -268,9 +263,7 @@ public class RegisteringGcmActivity extends Activity {
      * since the device sends upstream messages to a server that echoes back the
      * message using the 'from' address in the message.
      */
-    private void sendRegistrationIdToBackend() {
-        // Your implementation here.
-        String registration_id = getRegistrationId(context);
+    private void sendRegistrationIdToBackend(String registration_id) {
         Log.i("RegId to send:", registration_id);
         TelephonyManager telephonyManager = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
@@ -313,6 +306,9 @@ public class RegisteringGcmActivity extends Activity {
             }
             intent.putExtra("SUBJECT_ID", subject_id);
         }
+        NotificationManager mNotificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancelAll();
         startActivity(intent);
         finish();
     }

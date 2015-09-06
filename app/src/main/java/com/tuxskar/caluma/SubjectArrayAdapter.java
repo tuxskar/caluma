@@ -18,6 +18,7 @@ import com.tuxskar.caluma.ws.models.TeachingSubject;
 import com.tuxskar.caluma.ws.models.Timetable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -36,47 +37,51 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
         this.context = context;
     }
 
-    static class ViewHolder {
-        protected TextView text;
-        protected CheckBox checkbox;
-    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflator = context.getLayoutInflater();
-            rowView = inflator.inflate(R.layout.subject_row, null);
-            ViewHolder viewHolder = new ViewHolder();
-            viewHolder.text = (TextView) rowView.findViewById(R.id.label);
-            viewHolder.checkbox = (CheckBox) rowView.findViewById(R.id.check);
-            viewHolder.checkbox.setTag(getItem(position));
-            rowView.setTag(viewHolder);
-        }
-        ViewHolder holder = (ViewHolder) rowView.getTag();
+        ViewHolder holder;
         SubjectSimple element = getItem(position);
+        if (convertView == null) {
+            LayoutInflater inflater = context.getLayoutInflater();
+            convertView = inflater.inflate(R.layout.subject_row, parent, false);
+            holder = new ViewHolder();
+            holder.text = (TextView) convertView.findViewById(R.id.label);
+            holder.checkbox = (CheckBox) convertView.findViewById(R.id.check);
+            holder.checkbox.setTag(getItem(position));
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
         holder.text.setText(element.getTitle());
         boolean ongoing = element.getT_subject().length > 0;
         holder.checkbox.setEnabled(ongoing);
+        boolean selected = element.isSelected();
+        holder.checkbox.setChecked(selected);
+        holder.checkbox.setTag(element);
         holder.checkbox
                 .setOnClickListener(new CompoundButton.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         SubjectSimple element = (SubjectSimple) v.getTag();
+                        String t_subject_id = Long.toString(element.getT_subject()[0]);
+                        ArrayList<String> selectedSubjects = LoginActivity.sharedDB.getList("TSUBJECTS_SELECTED");
                         boolean isChecked = ((CheckBox) v).isChecked();
                         if (isChecked) {
                             // add calendar event
                             boolean ret = addCalendarEvent(element);
                             ((CheckBox) v).setChecked(ret);
                             element.setSelected(ret);
+                            selectedSubjects.add(t_subject_id);
                         } else {
                             removeCalendarEvent(element);
                             ((CheckBox) v).setChecked(false);
                             element.setSelected(false);
+                            selectedSubjects.remove(t_subject_id);
                         }
+                        LoginActivity.sharedDB.putList("TSUBJECTS_SELECTED", selectedSubjects);
                     }
                 });
-        return rowView;
+        return convertView;
     }
 
     public boolean addCalendarEvent(final SubjectSimple element) {
@@ -88,7 +93,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
                     element.getT_subject()[0], new Callback<TeachingSubject>() {
                         @Override
                         public void failure(RetrofitError arg0) {
-                            Log.d("failure getting TeachingSubject", arg0
+                            Log.d("fail getting TSubject", arg0
                                     .getResponse().toString());
                         }
 
@@ -213,5 +218,10 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
                     Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    static class ViewHolder {
+        protected TextView text;
+        protected CheckBox checkbox;
     }
 }

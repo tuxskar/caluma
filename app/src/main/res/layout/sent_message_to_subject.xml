@@ -11,25 +11,9 @@
         android:orientation="vertical">
 
         <Spinner
+            android:id="@+id/messages_subject_spinner"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/messages_subject_spinner" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Subject: "
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/subject_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="5pt"
-            android:text="Subject title some thing and more"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
+            android:layout_height="wrap_content" />
 
         <ListView
             android:id="@+id/messages_list"
@@ -38,10 +22,10 @@
             android:layout_weight="1" />
 
         <LinearLayout
+            android:id="@+id/send_messages_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/send_messages_layout">
+            android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/message_input"
@@ -49,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="20"
                 android:ems="10"
-                android:hint="Write a message for this subject."
+                android:hint="@string/write_teacher_message_label"
                 android:inputType="textMultiLine"
                 android:textIsSelectable="false" />
 
@@ -60,7 +44,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Send" />
+                android:text="@string/send_label" />
 
         </LinearLayout>
 

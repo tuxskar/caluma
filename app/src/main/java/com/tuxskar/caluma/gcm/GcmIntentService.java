@@ -25,6 +25,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tuxskar.caluma.R;
 
 /**
@@ -36,14 +38,13 @@ import com.tuxskar.caluma.R;
  */
 public class GcmIntentService extends IntentService {
     public static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;
+    public static final String TAG = "GCM Demo";
     NotificationCompat.Builder builder;
+    private NotificationManager mNotificationManager;
 
     public GcmIntentService() {
         super("GcmIntentService");
     }
-
-    public static final String TAG = "GCM Demo";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -83,7 +84,12 @@ public class GcmIntentService extends IntentService {
     // This is just one simple example of what you might choose to do with
     // a GCM message.
     private void sendNotification(Bundle extras) {
-        String msg = "Received: " + extras.get("message");
+        JsonParser parser = new JsonParser();
+        JsonObject obj = parser.parse(extras.get("message").toString()).getAsJsonObject();
+        String teacher = obj.get("teacher").getAsString();
+        String message = obj.get("message").getAsString();
+        String subject_title = obj.get("subject_title").getAsString();
+        String msg = teacher + ": " + message;
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
         Intent newIntent = new Intent(this, RegisteringGcmActivity.class);
@@ -94,7 +100,7 @@ public class GcmIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.caluma_launcher)
-                        .setContentTitle("New notification from caluma")
+                        .setContentTitle(subject_title)
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);
