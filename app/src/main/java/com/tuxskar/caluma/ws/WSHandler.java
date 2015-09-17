@@ -5,15 +5,13 @@ import com.tuxskar.caluma.gcm.models.SentMessageToSubject;
 import com.tuxskar.caluma.users.LoggedIn;
 import com.tuxskar.caluma.ws.models.Degree;
 import com.tuxskar.caluma.ws.models.School;
-import com.tuxskar.caluma.ws.models.SubjectsSubscribed;
+import com.tuxskar.caluma.ws.models.SimpleInfo;
 import com.tuxskar.caluma.ws.models.TeachingSubject;
 import com.tuxskar.caluma.ws.models.WSInfo;
 import com.tuxskar.caluma.ws.models.users.CalumaDevice;
 import com.tuxskar.caluma.ws.models.users.DeviceInfo;
 import com.tuxskar.caluma.ws.models.users.LoginUser;
 import com.tuxskar.caluma.ws.models.users.User;
-
-import java.util.Date;
 
 import retrofit.Callback;
 import retrofit.http.Body;
@@ -24,7 +22,7 @@ import retrofit.http.Query;
 
 public interface WSHandler {
     //	String SERVICE_ENDPOINT = "http://caluny.noip.me";
-    String SERVICE_ENDPOINT = "http://192.168.1.130:8888/";
+    String SERVICE_ENDPOINT = "http://192.168.1.132:8888/";
 
     @GET("/schools")
     void listSchoolCB(Callback<WSInfo<School>> cb);
@@ -45,7 +43,7 @@ public interface WSHandler {
     void registerGcmDevice(@Body CalumaDevice device, Callback<DeviceInfo> cb);
 
     @GET("/caluny/users/subject_subscribed/")
-    void getSubjectSubscribed(Callback<WSInfo<SubjectsSubscribed>> cb);
+    void getSubjectSubscribed(Callback<WSInfo<SimpleInfo>> cb);
 
     @POST("/caluny/chat/send_subject_message/")
     void sendTeacherMessage(@Body SentMessageToSubject mts, Callback<SentMessageInfo> cb);
@@ -53,6 +51,4 @@ public interface WSHandler {
     @GET("/caluny/chat/messages/")
     void getAllTeachingSubjectMessages(@Query("receiver") long t_subject, Callback<WSInfo<MessageToSubject>> cb);
 
-    @GET("/caluny/chat/messages/")
-    void getTeachingSubjectMessagesFrom(@Query("date_from") Date date_from, Callback<WSInfo<MessageToSubject>> cb);
 }

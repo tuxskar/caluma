@@ -4,7 +4,7 @@ public class SubjectSimple {
     private String description, title;
     private int code, level;
     private long id;
-    private long t_subject[];
+    private SimpleInfo t_subject[];
     private boolean selected;
 
     public boolean isSelected() {
@@ -31,11 +31,11 @@ public class SubjectSimple {
         this.id = id;
     }
 
-    public long[] getT_subject() {
+    public SimpleInfo[] getT_subject() {
         return t_subject;
     }
 
-    public void setT_subject(long[] t_subject) {
+    public void setT_subject(SimpleInfo[] t_subject) {
         this.t_subject = t_subject;
     }
 

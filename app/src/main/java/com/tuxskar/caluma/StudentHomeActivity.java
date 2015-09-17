@@ -2,12 +2,16 @@ package com.tuxskar.caluma;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -143,7 +147,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                         actionBar.setSelectedNavigationItem(position);
                     }
                 });
-
+        actionBar.removeAllTabs();
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
             actionBar.addTab(actionBar.newTab()
                     .setText(mSectionsPagerAdapter.getPageTitle(i))
@@ -560,7 +564,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
             ArrayList<String> selectedSubjects = LoginActivity.sharedDB.getList("TSUBJECTS_SELECTED");
             for (SubjectSimple subject : selectedDegree.getSubjects()) {
                 if (subject.getT_subject().length > 0) {
-                    if (selectedSubjects.indexOf(Long.toString(subject.getT_subject()[0])) >= 0) {
+                    if (selectedSubjects.indexOf(Long.toString(subject.getId())) >= 0) {
                         subject.setSelected(true);
                     }
                 }
@@ -614,6 +618,26 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                     return getString(R.string.calendar_title).toUpperCase(l);
             }
             return null;
+        }
+    }
+
+    public class SelectSubjectClassFragment extends DialogFragment {
+        private CharSequence[] subjectClass;
+
+        public SelectSubjectClassFragment(ArrayList<String> selection_list) {
+            subjectClass = selection_list.toArray(new CharSequence[selection_list.size()]);
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.pick_subject_class)
+                    .setItems(this.subjectClass, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+            return builder.create();
         }
     }
 }
