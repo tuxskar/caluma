@@ -17,7 +17,7 @@
     <string name="name">Name</string>
     <string name="last_name">Last name</string>
     <string name="email">Email</string>
-    <string name="dept">Departament</string>
+    <string name="dept">Department</string>
     <string name="description">Description</string>
     <string name="calendar_title">Calendario</string>
 
