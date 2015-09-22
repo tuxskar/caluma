@@ -2,16 +2,12 @@ package com.tuxskar.caluma;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -506,6 +502,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                         @Override
                         public void onItemSelected(AdapterView<?> arg0,
                                                    View arg1, int arg2, long arg3) {
+                            cleanSubjects();
                             setDegrees(arg2);
                         }
 
@@ -531,6 +528,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                         @Override
                         public void onItemSelected(AdapterView<?> arg0,
                                                    View arg1, int arg2, long arg3) {
+                            cleanSubjects();
                             argDegreeSelected = arg2;
                             getSubjects(wsSchool.getResults()
                                     .get(argSchoolSelected).getDegrees()
@@ -558,6 +556,14 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                     populateSubjects();
                 }
             });
+        }
+
+        private void cleanSubjects() {
+            ArrayAdapter<SubjectSimple> adapter = new SubjectArrayAdapter(
+                    this.getActivity(), new ArrayList<SubjectSimple>());
+            ListView subjects_list = (ListView) rootV
+                    .findViewById(R.id.subjects_list);
+            subjects_list.setAdapter(adapter);
         }
 
         private void populateSubjects() {
@@ -618,26 +624,6 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
                     return getString(R.string.calendar_title).toUpperCase(l);
             }
             return null;
-        }
-    }
-
-    public class SelectSubjectClassFragment extends DialogFragment {
-        private CharSequence[] subjectClass;
-
-        public SelectSubjectClassFragment(ArrayList<String> selection_list) {
-            subjectClass = selection_list.toArray(new CharSequence[selection_list.size()]);
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.pick_subject_class)
-                    .setItems(this.subjectClass, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-            return builder.create();
         }
     }
 }

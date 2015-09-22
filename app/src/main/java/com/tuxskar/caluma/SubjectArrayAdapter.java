@@ -22,6 +22,7 @@ import com.tuxskar.caluma.ws.models.Timetable;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -89,6 +90,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
     public void selectTSubjectClass(final SubjectSimple element, final CheckBox v) {
         if (element.getT_subject().length > 0) {
             final SimpleInfo[] t_subjects_ids = element.getT_subject();
+            Arrays.sort(t_subjects_ids);
             class_options = new CharSequence[element.getT_subject().length];
             for (int i = 0; i < t_subjects_ids.length; i++) {
                 class_options[i] = t_subjects_ids[i].getTitle();

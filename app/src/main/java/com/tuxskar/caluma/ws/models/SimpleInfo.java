@@ -1,6 +1,6 @@
 package com.tuxskar.caluma.ws.models;
 
-public class SimpleInfo {
+public class SimpleInfo implements Comparable<SimpleInfo> {
     private String title;
     private long id;
 
@@ -22,5 +22,10 @@ public class SimpleInfo {
 
     public String toString() {
         return this.title;
+    }
+
+    @Override
+    public int compareTo(SimpleInfo another) {
+        return getTitle().compareTo(another.getTitle());
     }
 }
