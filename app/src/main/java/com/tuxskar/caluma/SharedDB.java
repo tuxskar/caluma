@@ -14,12 +14,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class SharedDB {
+    public static String lastImagePath = "";
+    static Map<Long, ArrayList<Long>> tsubjectsIds;
     Context mContext;
     SharedPreferences preferences;
     String DEFAULT_APP_IMAGEDATA_DIRECTORY;
     File mFolder = null;
-    public static String lastImagePath = "";
-    static Map<Long, ArrayList<Long>> tsubjectsIds;
 
     public SharedDB(Context appContext) {
         mContext = appContext;
@@ -264,7 +264,7 @@ public class SharedDB {
 
     public ArrayList<Long> getEventIds(long tSubjectId) {
         // Returns the arraList associated to the tSubject argument
-        return SharedDB.tsubjectsIds.containsKey(tsubjectsIds) ? SharedDB.tsubjectsIds
+        return SharedDB.tsubjectsIds.containsKey(tSubjectId) ? SharedDB.tsubjectsIds
                 .get(tSubjectId) : new ArrayList<Long>();
     }
 }
