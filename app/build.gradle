@@ -5,7 +5,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.tuxskar.caluma"
+        applicationId "prod.tuxskar.caluma"
         minSdkVersion 14
         targetSdkVersion 19
     }
