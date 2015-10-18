@@ -14,12 +14,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import prod.tuxskar.caluma.ws.models.Exam;
-import prod.tuxskar.caluma.ws.models.SimpleInfo;
-import prod.tuxskar.caluma.ws.models.SubjectSimple;
-import prod.tuxskar.caluma.ws.models.TeachingSubject;
-import prod.tuxskar.caluma.ws.models.Timetable;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +22,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import prod.tuxskar.caluma.ws.models.Exam;
+import prod.tuxskar.caluma.ws.models.SimpleInfo;
+import prod.tuxskar.caluma.ws.models.SubjectSimple;
+import prod.tuxskar.caluma.ws.models.TeachingSubject;
+import prod.tuxskar.caluma.ws.models.Timetable;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -115,7 +114,7 @@ public class SubjectArrayAdapter extends ArrayAdapter<SubjectSimple> {
 
     private void addTSubjectToCalendar(final long t_subject_id, final String selected_subject_title,
                                        final CheckBox v, final SubjectSimple element) {
-        LoginActivity.getUserService().getTSubject(
+        LoginActivity.getUserService(context).getTSubject(
                 t_subject_id, new Callback<TeachingSubject>() {
                     @Override
                     public void failure(RetrofitError arg0) {

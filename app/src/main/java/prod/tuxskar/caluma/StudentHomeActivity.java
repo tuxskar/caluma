@@ -34,12 +34,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import prod.tuxskar.caluma.ws.models.Degree;
-import prod.tuxskar.caluma.ws.models.School;
-import prod.tuxskar.caluma.ws.models.SimpleInfo;
-import prod.tuxskar.caluma.ws.models.SubjectSimple;
-import prod.tuxskar.caluma.ws.models.WSInfo;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +45,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import prod.tuxskar.caluma.ws.models.Degree;
+import prod.tuxskar.caluma.ws.models.School;
+import prod.tuxskar.caluma.ws.models.SimpleInfo;
+import prod.tuxskar.caluma.ws.models.SubjectSimple;
+import prod.tuxskar.caluma.ws.models.WSInfo;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -151,7 +150,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
         }
         if (subjectMessage) {
             mSectionsPagerAdapter.notifyDataSetChanged();
-            actionBar.setSelectedNavigationItem(actionBar.getTabCount() - 1);
+            actionBar.setSelectedNavigationItem(0);
         }
     }
 
@@ -463,7 +462,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
         }
 
         public void getSchools() {
-            LoginActivity.getUserService().listSchoolCB(new Callback<WSInfo<School>>() {
+            LoginActivity.getUserService(context).listSchoolCB(new Callback<WSInfo<School>>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     if (arg0.getCause() != null) {
@@ -546,7 +545,7 @@ public class StudentHomeActivity extends Activity implements ActionBar.TabListen
         }
 
         public void getSubjects(long degreeId) {
-            LoginActivity.getUserService().getDegree(degreeId, new Callback<Degree>() {
+            LoginActivity.getUserService(context).getDegree(degreeId, new Callback<Degree>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     Log.d("failure degree", arg0.getResponse().toString());

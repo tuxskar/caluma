@@ -31,13 +31,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import prod.tuxskar.caluma.LoginActivity;
-import prod.tuxskar.caluma.R;
-import prod.tuxskar.caluma.SharedDB;
-import prod.tuxskar.caluma.StudentHomeActivity;
-import prod.tuxskar.caluma.TeacherHomeActivity;
-import prod.tuxskar.caluma.ws.models.users.CalumaDevice;
-import prod.tuxskar.caluma.ws.models.users.DeviceInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +38,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import prod.tuxskar.caluma.LoginActivity;
+import prod.tuxskar.caluma.R;
+import prod.tuxskar.caluma.SharedDB;
+import prod.tuxskar.caluma.StudentHomeActivity;
+import prod.tuxskar.caluma.TeacherHomeActivity;
+import prod.tuxskar.caluma.ws.models.users.CalumaDevice;
+import prod.tuxskar.caluma.ws.models.users.DeviceInfo;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RetrofitError;
@@ -268,8 +268,8 @@ public class RegisteringGcmActivity extends Activity {
         TelephonyManager telephonyManager = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
         String device_id = telephonyManager.getDeviceId();
-        LoginActivity.getUserService().registerGcmDevice(new CalumaDevice(registration_id, device_id),
-                new Callback<DeviceInfo>() {
+        LoginActivity.getUserService(context).registerGcmDevice(
+                new CalumaDevice(registration_id, device_id), new Callback<DeviceInfo>() {
                     @Override
                     public void failure(RetrofitError arg0) {
                         Toast.makeText(getApplicationContext(),

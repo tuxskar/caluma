@@ -5,18 +5,13 @@ package prod.tuxskar.caluma.ws;
 
 import java.util.Date;
 
+import prod.tuxskar.caluma.ws.models.users.MessageSender;
+
 public class MessageToSubject {
-    private String status, message;
-    private Date created, modified, status_changed;
-    private long id, receiver;
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    private String message;
+    private Date modified;
+    private long id;
+    private MessageSender sender;
 
     public String getMessage() {
         return message;
@@ -24,14 +19,6 @@ public class MessageToSubject {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
     }
 
     public Date getModified() {
@@ -42,14 +29,6 @@ public class MessageToSubject {
         this.modified = modified;
     }
 
-    public Date getStatus_changed() {
-        return status_changed;
-    }
-
-    public void setStatus_changed(Date status_changed) {
-        this.status_changed = status_changed;
-    }
-
     public long getId() {
         return id;
     }
@@ -58,11 +37,11 @@ public class MessageToSubject {
         this.id = id;
     }
 
-    public long getReceiver() {
-        return receiver;
+    public MessageSender getSender() {
+        return sender;
     }
 
-    public void setReceiver(long receiver) {
-        this.receiver = receiver;
+    public void setSender(MessageSender sender) {
+        this.sender = sender;
     }
 }

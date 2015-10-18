@@ -224,6 +224,9 @@ public class SharedDB {
     }
 
     public void clear() {
+        putString(mContext.getString(R.string.userToken), "");
+        putString(mContext.getString(R.string.userRole), "");
+        tsubjectsIds.clear();
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
         editor.apply();

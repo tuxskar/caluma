@@ -58,6 +58,9 @@ import retrofit.client.Response;
 
 public class HomeActivity extends Activity implements ActionBar.TabListener {
 
+    static RequestInterceptor requestInterceptor;
+    static SharedDB sharedDB;
+    static Map<Long, ArrayList<Long>> tsubjectsIds;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
@@ -66,14 +69,56 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
      * {@link android.support.v13.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
-    static RequestInterceptor requestInterceptor;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
 
-    static SharedDB sharedDB;
-    static Map<Long, ArrayList<Long>> tsubjectsIds;
+    public static void addEventCorrect(String title, Calendar start,
+                                       Calendar end, String description, String rrule, String location,
+                                       Context context, long tSubjectId) {
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                context.getString(R.string.calendarPreferences),
+                Context.MODE_PRIVATE);
+        long calID = sharedPref.getLong(
+                context.getString(R.string.selectedCalendarId), 1);
+        long startMillis = 0;
+        long endMillis = 0;
+        startMillis = start.getTimeInMillis();
+        endMillis = end.getTimeInMillis();
+        ContentResolver cr = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(Events.DTSTART, startMillis);
+        values.put(Events.DTEND, endMillis);
+        values.put(Events.RRULE, rrule);
+        values.put(Events.TITLE, title);
+        values.put(Events.DESCRIPTION, description);
+        values.put(Events.EVENT_LOCATION, location);
+        values.put(Events.CALENDAR_ID, calID);
+        values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
+        Uri uri = cr.insert(Events.CONTENT_URI, values);
+        Long eventId = Long.parseLong(uri.getLastPathSegment());
+        // Toast.makeText(context,
+        // "Created Calendar Event " + eventID + " CalId: " +
+        // Long.toString(calID), Toast.LENGTH_SHORT).show();
+        HomeActivity.sharedDB.saveID(tSubjectId, eventId);
+    }
+
+    public static int deleteEventId(Context context, Long tSubjectId) {
+        int deleted = 0;
+        for (Long eventId : HomeActivity.sharedDB.getEventIds(tSubjectId)) {
+            // selArgs.add(Long.toString(eventId));
+            deleted += context.getContentResolver().delete(Events.CONTENT_URI,
+                    Events._ID + " = " + Long.toString(eventId), null);
+        }
+        // ArrayList<String> selArgs = new ArrayList<String>();
+        // String[] selArray = new String[selArgs.size()];
+        // String[] selArray = {selArgs.get(0), selArgs.get(1), selArgs.get(2)};
+        // selArray = selArgs.toArray(selArray);
+
+        HomeActivity.sharedDB.removeTSubject(tSubjectId);
+        return deleted;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,94 +198,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
                                 FragmentTransaction fragmentTransaction) {
     }
 
-    public static void addEventCorrect(String title, Calendar start,
-                                       Calendar end, String description, String rrule, String location,
-                                       Context context, long tSubjectId) {
-        SharedPreferences sharedPref = context.getSharedPreferences(
-                context.getString(R.string.calendarPreferences),
-                Context.MODE_PRIVATE);
-        long calID = sharedPref.getLong(
-                context.getString(R.string.selectedCalendarId), 1);
-        long startMillis = 0;
-        long endMillis = 0;
-        startMillis = start.getTimeInMillis();
-        endMillis = end.getTimeInMillis();
-        ContentResolver cr = context.getContentResolver();
-        ContentValues values = new ContentValues();
-        values.put(Events.DTSTART, startMillis);
-        values.put(Events.DTEND, endMillis);
-        values.put(Events.RRULE, rrule);
-        values.put(Events.TITLE, title);
-        values.put(Events.DESCRIPTION, description);
-        values.put(Events.EVENT_LOCATION, location);
-        values.put(Events.CALENDAR_ID, calID);
-        values.put(Events.EVENT_TIMEZONE, "Europe/Madrid");
-        Uri uri = cr.insert(Events.CONTENT_URI, values);
-        Long eventId = Long.parseLong(uri.getLastPathSegment());
-        // Toast.makeText(context,
-        // "Created Calendar Event " + eventID + " CalId: " +
-        // Long.toString(calID), Toast.LENGTH_SHORT).show();
-        HomeActivity.sharedDB.saveID(tSubjectId, eventId);
-    }
-
-    public static int deleteEventId(Context context, Long tSubjectId) {
-        int deleted = 0;
-        for (Long eventId : HomeActivity.sharedDB.getEventIds(tSubjectId)) {
-            // selArgs.add(Long.toString(eventId));
-            deleted += context.getContentResolver().delete(Events.CONTENT_URI,
-                    Events._ID + " = " + Long.toString(eventId), null);
-        }
-        // ArrayList<String> selArgs = new ArrayList<String>();
-        // String[] selArray = new String[selArgs.size()];
-        // String[] selArray = {selArgs.get(0), selArgs.get(1), selArgs.get(2)};
-        // selArray = selArgs.toArray(selArray);
-
-        HomeActivity.sharedDB.removeTSubject(tSubjectId);
-        return deleted;
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return CalendarsFragment.newInstance(position);
-                case 1:
-                    return SubjectsSearcherFragment.newInstance(position);
-                default:
-                    return PlaceholderFragment.newInstance(position + 1);
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.action_settings).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 2:
-                    return getString(R.string.title_section2).toUpperCase(l);
-            }
-            return null;
-        }
-    }
-
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -254,7 +211,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
         public static List<String> calendarAccounts;
         public static List<String> calendarTypes;
         public static List<Long> calendarIds;
-        View rootV;
         public static Long SelectedCalendarId;
         public static Long createdEventId = (long) 277;
         public static String READ_FORMAT_DATETIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -262,6 +218,10 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
                 READ_FORMAT_DATETIME, Locale.ENGLISH);
         public static TimeZone timezone = TimeZone.getTimeZone("Europe/Madrid");
         public Context context;
+        View rootV;
+
+        public CalendarsFragment() {
+        }
 
         /**
          * Returns a new instance of this fragment for the given section number.
@@ -271,7 +231,17 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
             return fragment;
         }
 
-        public CalendarsFragment() {
+        public static Calendar stringToCalendar(String strDate,
+                                                TimeZone timezone) throws ParseException {
+            sdf.setTimeZone(timezone);
+            Date date = sdf.parse(strDate);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            return cal;
+        }
+
+        public static String CalendarToString(Calendar calendar) {
+            return sdf.format(calendar.getTime());
         }
 
         @Override
@@ -316,7 +286,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
                             .getSharedPreferences(context
                                             .getString(R.string.calendarPreferences),
                                     Context.MODE_PRIVATE);
-                    ;
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putLong(getString(R.string.selectedCalendarId),
                             SelectedCalendarId);
@@ -398,19 +367,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
             return rootV;
         }
 
-        public static Calendar stringToCalendar(String strDate,
-                                                TimeZone timezone) throws ParseException {
-            sdf.setTimeZone(timezone);
-            Date date = sdf.parse(strDate);
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
-            return cal;
-        }
-
-        public static String CalendarToString(Calendar calendar) {
-            return sdf.format(calendar.getTime());
-        }
-
         public void populateCalendars() {
             String[] projection = new String[]{Calendars._ID, Calendars.NAME,
                     Calendars.ACCOUNT_NAME, Calendars.ACCOUNT_TYPE};
@@ -484,11 +440,14 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
          * fragment.
          */
         View rootV;
+        Context context;
         private WSInfo<School> wsSchool;
         private Degree selectedDegree;
         private int argSchoolSelected;
         private int argDegreeSelected;
-        Context context;
+
+        public SubjectsSearcherFragment() {
+        }
 
         /**
          * Returns a new instance of this fragment for the given section number.
@@ -496,9 +455,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
         public static SubjectsSearcherFragment newInstance(int sectionNumber) {
             SubjectsSearcherFragment fragment = new SubjectsSearcherFragment();
             return fragment;
-        }
-
-        public SubjectsSearcherFragment() {
         }
 
         @Override
@@ -512,7 +468,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
         }
 
         public void getSchools() {
-            LoginActivity.getUserService().listSchoolCB(new Callback<WSInfo<School>>() {
+            LoginActivity.getUserService(context).listSchoolCB(new Callback<WSInfo<School>>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     if (arg0.getCause() != null) {
@@ -593,7 +549,7 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
         }
 
         public void getSubjects(long degreeId) {
-            LoginActivity.getUserService().getDegree(degreeId, new Callback<Degree>() {
+            LoginActivity.getUserService(context).getDegree(degreeId, new Callback<Degree>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     Log.d("failure degree", arg0.getResponse().toString());
@@ -627,6 +583,9 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
+        public PlaceholderFragment() {
+        }
+
         /**
          * Returns a new instance of this fragment for the given section number.
          */
@@ -636,9 +595,6 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
             return fragment;
-        }
-
-        public PlaceholderFragment() {
         }
 
         @Override
@@ -654,6 +610,48 @@ public class HomeActivity extends Activity implements ActionBar.TabListener {
             tv.setText("EN CONSTRUCCIÓN");
             ((LinearLayout) rootView.findViewById(R.id.content)).addView(tv);
             return rootView;
+        }
+    }
+
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return CalendarsFragment.newInstance(position);
+                case 1:
+                    return SubjectsSearcherFragment.newInstance(position);
+                default:
+                    return PlaceholderFragment.newInstance(position + 1);
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            Locale l = Locale.getDefault();
+            switch (position) {
+                case 0:
+                    return getString(R.string.action_settings).toUpperCase(l);
+                case 1:
+                    return getString(R.string.title_section1).toUpperCase(l);
+                case 2:
+                    return getString(R.string.title_section2).toUpperCase(l);
+            }
+            return null;
         }
     }
 }

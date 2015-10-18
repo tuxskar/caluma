@@ -11,13 +11,13 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import prod.tuxskar.caluma.gcm.RegisteringGcmActivity;
 import prod.tuxskar.caluma.users.LoggedIn;
 import prod.tuxskar.caluma.users.NewUserActivity;
 import prod.tuxskar.caluma.ws.WSErrorHandler;
 import prod.tuxskar.caluma.ws.WSHandler;
 import prod.tuxskar.caluma.ws.models.users.LoginUser;
-
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -26,33 +26,23 @@ import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
 public class LoginActivity extends Activity {
-    private EditText username = null;
-    private EditText password = null;
     static SharedDB sharedDB;
     static WSHandler service;
     static RequestInterceptor requestInterceptor;
     static private Context context;
+    private EditText username = null;
+    private EditText password = null;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        username = (EditText) findViewById(R.id.editUsername);
-        password = (EditText) findViewById(R.id.editPassword);
-        sharedDB = new SharedDB(this.getApplicationContext());
-        context = getApplicationContext();
-    }
-
-    static public WSHandler getUserService() {
+    static public WSHandler getUserService(Context param_context) {
         if (service == null) {
             Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
             if (sharedDB == null) {
-                sharedDB = new SharedDB(context);
+                sharedDB = new SharedDB(param_context != null ? param_context : context);
             }
-            final String token = sharedDB.getString(context.getString(R.string.userToken));
             requestInterceptor = new RequestInterceptor() {
                 @Override
                 public void intercept(RequestFacade request) {
+                    String token = sharedDB.getString(context.getString(R.string.userToken));
                     request.addHeader("Authorization", " Token " + token);
                     request.addHeader("WWW-Authenticate", " Token");
                 }
@@ -65,6 +55,16 @@ public class LoginActivity extends Activity {
             service = restAdapter.create(WSHandler.class);
         }
         return service;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        username = (EditText) findViewById(R.id.editUsername);
+        password = (EditText) findViewById(R.id.editPassword);
+        sharedDB = new SharedDB(this.getApplicationContext());
+        context = getApplicationContext();
     }
 
     @Override
@@ -83,12 +83,15 @@ public class LoginActivity extends Activity {
                     .setEndpoint(WSHandler.SERVICE_ENDPOINT)
                     .setErrorHandler(new WSErrorHandler()).build();
             WSHandler service = restAdapter.create(WSHandler.class);
+            sharedDB.putString(context.getString(R.string.userUsername),
+                    username.getText().toString());
             service.getUserToken(new LoginUser(username.getText().toString(), password
                     .getText().toString()), new Callback<LoggedIn>() {
                 @Override
                 public void failure(RetrofitError arg0) {
                     Toast.makeText(getApplicationContext(),
                             "Wrong Credentials", Toast.LENGTH_SHORT).show();
+                    sharedDB.putString(context.getString(R.string.userUsername), "");
                 }
 
                 @Override
@@ -117,7 +120,7 @@ public class LoginActivity extends Activity {
         sharedDB.putString(getString(R.string.userToken), response.getToken());
         sharedDB.putString(getString(R.string.userRole), response.getRole());
         sharedDB.putBoolean("userLoggedInState", true);
-        getUserService();
+        getUserService(null);
         goToRegisteringActivity();
     }
 
