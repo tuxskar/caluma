@@ -93,7 +93,7 @@ public class GcmIntentService extends IntentService {
         newIntent.putExtra("message", extras);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 newIntent, 0);
-        long[] pattern = {500, 500, 500, 500, 500, 500, 500, 500, 500};
+        long[] pattern = {500, 500, 500, 500};
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -101,7 +101,7 @@ public class GcmIntentService extends IntentService {
                         .setContentTitle(subject_title)
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
-                        .setLights(Color.BLUE, 500, 500)
+                        .setLights(Color.BLUE, 300, 1700)
                         .setVibrate(pattern)
                         .setSound(alarmSound)
                         .setContentText(msg);
