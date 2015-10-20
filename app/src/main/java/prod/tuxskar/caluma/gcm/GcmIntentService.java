@@ -20,6 +20,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -27,6 +30,7 @@ import android.util.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import prod.tuxskar.caluma.R;
 
 /**
@@ -89,15 +93,18 @@ public class GcmIntentService extends IntentService {
         newIntent.putExtra("message", extras);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 newIntent, 0);
-
+        long[] pattern = {500, 500, 500, 500, 500, 500, 500, 500, 500};
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.caluma_launcher)
                         .setContentTitle(subject_title)
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
+                        .setLights(Color.BLUE, 500, 500)
+                        .setVibrate(pattern)
+                        .setSound(alarmSound)
                         .setContentText(msg);
-
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }

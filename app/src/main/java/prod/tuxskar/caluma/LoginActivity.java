@@ -39,6 +39,9 @@ public class LoginActivity extends Activity {
             if (sharedDB == null) {
                 sharedDB = new SharedDB(param_context != null ? param_context : context);
             }
+            if (context == null && param_context != null) {
+                context = param_context;
+            }
             requestInterceptor = new RequestInterceptor() {
                 @Override
                 public void intercept(RequestFacade request) {
@@ -115,7 +118,6 @@ public class LoginActivity extends Activity {
 
     }
 
-
     public void changeToHomeActivity(LoggedIn response) {
         sharedDB.putString(getString(R.string.userToken), response.getToken());
         sharedDB.putString(getString(R.string.userRole), response.getRole());
@@ -124,20 +126,11 @@ public class LoginActivity extends Activity {
         goToRegisteringActivity();
     }
 
-    public void goToHomeActivity() {
-        Intent intent = new Intent(this, sharedDB.getString(
-                getString(R.string.userRole)).compareTo("TEAC") == 0 ? TeacherHomeActivity.class : StudentHomeActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
-    }
-
     public void goToRegisteringActivity() {
         Intent intent = new Intent(this, RegisteringGcmActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
-//		RegisteringGdmActivity
     }
 
     @Override
