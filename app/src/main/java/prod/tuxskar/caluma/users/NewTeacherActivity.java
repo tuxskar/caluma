@@ -14,7 +14,6 @@ import prod.tuxskar.caluma.TeacherHomeActivity;
 import prod.tuxskar.caluma.ws.WSErrorHandler;
 import prod.tuxskar.caluma.ws.WSHandler;
 import prod.tuxskar.caluma.ws.models.users.Teacher;
-
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -22,6 +21,7 @@ import retrofit.client.Response;
 
 public class NewTeacherActivity extends Activity {
 
+    static SharedDB sharedDB;
     private EditText name = null;
     private EditText last_name = null;
     private EditText email = null;
@@ -29,7 +29,6 @@ public class NewTeacherActivity extends Activity {
     private EditText password = null;
     private EditText dept = null;
     private EditText description = null;
-    static SharedDB sharedDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +52,17 @@ public class NewTeacherActivity extends Activity {
     }
 
     public void createNewTeacher(View view) {
-        if (username.getText().toString().length() > 0
-                && password.getText().toString().length() > 0) {
+        String username = this.username.getText().toString();
+        if (username.length() > 0 && password.getText().toString().length() > 0) {
             Toast.makeText(getApplicationContext(), "Creating new user",
                     Toast.LENGTH_SHORT).show();
             RestAdapter restAdapter = new RestAdapter.Builder()
                     .setEndpoint(WSHandler.SERVICE_ENDPOINT)
                     .setErrorHandler(new WSErrorHandler()).build();
             WSHandler service = restAdapter.create(WSHandler.class);
+            sharedDB.putString(getString(R.string.userUsername), username);
             service.createNewUser(
-                    new Teacher(username.getText().toString(), password
+                    new Teacher(this.username.getText().toString(), password
                             .getText().toString(), name.getText().toString(),
                             last_name.getText().toString(), email.getText()
                             .toString(), dept.getText().toString(),
@@ -74,6 +74,7 @@ public class NewTeacherActivity extends Activity {
                                     getApplicationContext(),
                                     "Something went Wrong, try again with other username",
                                     Toast.LENGTH_SHORT).show();
+                            sharedDB.putString(getString(R.string.userUsername), "");
                         }
 
                         @Override

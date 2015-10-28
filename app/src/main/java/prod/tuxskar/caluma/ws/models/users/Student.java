@@ -2,7 +2,7 @@ package prod.tuxskar.caluma.ws.models.users;
 
 
 public class Student extends User {
-    public static String role = "STUD";
+    public String role = "STUD";
 
     public Student(String username, String password, String name, String last_name, String email) {
         super(username, password, name, last_name, email);
@@ -14,6 +14,6 @@ public class Student extends User {
     }
 
     public void setRole(String role) {
-        Student.role = role;
+        this.role = role;
     }
 }
